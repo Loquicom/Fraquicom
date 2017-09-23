@@ -7,12 +7,6 @@ GPL-3.0
 hello_world.php
 ==============================================================================*/
 defined('FC_INI') or exit('Acces Denied');
+?>
 
-class hello_world extends FC_Controller{
-    
-    public function index(){
-        $body = $this->load->view('hello_world', null, true);
-        $this->load->view('webpage', array('body' => $body, 'title' => 'Hello World'));
-    }
-    
-}
+<h1>Hello World</h1>

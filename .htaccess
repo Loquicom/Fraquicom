@@ -1,0 +1,9 @@
+Options +FollowSymLinks
+
+RewriteEngine On
+
+RewriteBase /
+
+RewriteCond $1 !^(index\.php|robots\.txt|assets)
+
+RewriteRule ^(.*)$ Fraterialize/index.php?_fc_r=$1 [L]

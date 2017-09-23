@@ -54,7 +54,8 @@ if ($_setup) {
         copy_dir('./system/setup_file/security/', './application/library/');
         copy_dir('./system/setup_file/config/', './application/config/');
         //Ajout de l'exemple
-        copy('./system/setup_file/preset/hello_world.php', './application/view/hello_world.php');
+        copy('./system/setup_file/preset/hello_world.view.php', './application/view/hello_world.php');
+        copy('./system/setup_file/preset/webpage.php', './application/view/webpage.php');
         copy('./system/setup_file/preset/hello_world.controller.php', './application/controller/hello_world.php');
     } else {
         //Backup avant supression
@@ -81,6 +82,8 @@ if ($_setup) {
         copy_dir('./system/setup_file/config/', './application/config/');
         //Ajout de l'exemple
         copy('./system/setup_file/preset/hello_world.php', './application/hello_world.php');
+        copy('./system/setup_file/preset/header.php', './application/header.php');
+        copy('./system/setup_file/preset/footer.php', './application/footer.php');
     }
 }
 
