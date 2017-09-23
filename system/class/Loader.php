@@ -343,7 +343,7 @@ class Loader {
                     }
                 }
                 try {
-                    require './application/view/' . $name . '.php';
+                    require './application/' . $name . '.php';
                 } catch (Exception $ex) {
                     throw new LoaderException('Erreur pendant le chargement du fichier : ' . $ex->getMessage());
                 }
