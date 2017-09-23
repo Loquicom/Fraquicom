@@ -58,7 +58,18 @@ if (trim($url) == '') {
     //Routage vers la methode par defaut
     $url = $config['route']['index'];
 }
-//Ajout dans la variable $_config du script appet
+//Ajout des parametre get du l'url dans $_GET
+$getParams = explode('?' ,$_SERVER['REQUEST_URI']);
+if(isset($getParams[1])){
+    //Si il y a des parametres get
+    $getParams = explode('&', $getParams[1]);
+    foreach ($getParams as $getParam){
+        $getParam = explode('=', $getParam);
+        $_GET[$getParam[0]] = $getParam[1];
+    }
+}
+
+//Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 //En mvc
 if ($_config['mode'] == 'mvc') {
