@@ -426,12 +426,14 @@ class Loader {
      * @throws LoaderException - Erreur pendant le chargement
      */
     public function config($name){
+        global $config;
         if(file_exists('./application/config/' . $name . '.php')){
             try{
                 require './application/config/' . $name . '.php';
             } catch (Exception $ex) {
                 throw new LoaderException('Erreur pendant le chargement du fichier de config : ' . $ex->getMessage());
             }
+            return true;
         }
         return false;
     }
