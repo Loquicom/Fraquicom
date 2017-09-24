@@ -7,7 +7,9 @@
   _ini.php
   ============================================================================ */
 
-//Chargement class loader
+//Chargement de la class config
+require './system/class/Config.php';
+//Chargement de la class loader
 require './system/class/Loader.php';
 
 //Chargement des fichiers de ocnfig utilisateurs
