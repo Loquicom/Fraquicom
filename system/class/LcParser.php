@@ -3,6 +3,7 @@
  * LcParser by Loquicom
  * Ver 1.1
  * =========================================================================== */
+defined('FC_INI') or exit('Acces Denied');
 
 /*
  * Constante pour la cr?ation de l'objet 

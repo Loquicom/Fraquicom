@@ -20,7 +20,7 @@ class Fraquicom {
      * Les valeurs du fichier de configuration
      * @var mixed
      */
-    private $config = array();
+    public $config = null;
 
     /**
      * Retourne une instance de Fraquicom
@@ -37,15 +37,12 @@ class Fraquicom {
      * @throws FraquicomException
      */
     public function __construct() {
-        //Chargement du fichier de configuration
-        global $config;
-        global $_config;
-        $this->config = array_merge($config, $_config);
+        $this->config = Config::get_config();
         //Chargement de la class loader
         $this->load = Loader::getLoader();
         //Chargement des fichiers demandé par l'utilisateur
         //Chargment Helper
-        if ($this->config['loader']['all']['helper']) {
+        if ($this->config->get('loader', 'all', 'helper')) {
             $helperFiles = array_merge(array_diff(scandir('./application/helper/'), array('..', '.')), array_diff(scandir('./system/helper/'), array('..', '.')));
             foreach ($helperFiles as $helperFile) {
                 $helperFile = str_replace('.php', '', $helperFile);
@@ -53,15 +50,15 @@ class Fraquicom {
                     throw new FraquicomException('Impossible de charger le fichier ' . $helperFile . '.php');
                 }
             }
-        } else if (!empty($this->config['loader']['helper'])) {
-            foreach ($this->config['loader']['helper'] as $helperFile) {
+        } else if (!empty($this->config->get('loader', 'helper'))) {
+            foreach ($this->config->get('loader', 'helper') as $helperFile) {
                 if ($this->load->helper($helperFile) === false) {
                     throw new FraquicomException('Impossible de charger le fichier ' . $helperFile . '.php');
                 }
             }
         }
         //Chargement bibliotheque
-        if ($this->config['loader']['all']['library']) {
+        if ($this->config->get('loader', 'all', 'library')) {
             $librayFiles = array_merge(array_diff(scandir('./application/library/'), array('..', '.')), array_diff(scandir('./system/library/'), array('..', '.')));
             foreach ($librayFiles as $libraryFile) {
                 $libraryFile = str_replace('.php', '', $libraryFile);
@@ -69,15 +66,15 @@ class Fraquicom {
                     throw new FraquicomException('Impossible de charger le fichier ' . $libraryFile . '.php');
                 }
             }
-        } else if (!empty($this->config['loader']['library'])) {
-            foreach ($this->config['loader']['library'] as $libraryFile) {
+        } else if (!empty($this->config->get('loader', 'library'))) {
+            foreach ($this->config->get('loader', 'library') as $libraryFile) {
                 if ($this->load->library($libraryFile) === false) {
                     throw new FraquicomException('Impossible de charger le fichier ' . $libraryFile . '.php');
                 }
             }
         }
         //Chargement class
-        if ($this->config['mode'] == 'no_mvc' && $this->config['loader']['all']['class']) {
+        if ($this->config->get('mode') == 'no_mvc' && $this->config->get('loader', 'all', 'class')) {
             $classFiles = array_diff(scandir('./application/class/'), array('..', '.'));
             foreach ($classFiles as $classFile) {
                 $classFile = str_replace('.php', '', $classFile);
@@ -85,8 +82,8 @@ class Fraquicom {
                     throw new FraquicomException('Impossible de charger le fichier ' . $classFile . '.php');
                 }
             }
-        } else if ($this->config['mode'] == 'no_mvc' && !empty($this->config['loader']['class'])) {
-            foreach ($this->config['loader']['class'] as $classFile) {
+        } else if ($this->config->get('mode') == 'no_mvc' && !empty($this->config->get('loader', 'class'))) {
+            foreach ($this->config->get('loader', 'class') as $classFile) {
                 if ($this->load->object($classFile) === false) {
                     throw new FraquicomException('Impossible de charger le fichier ' . $classFile . '.php');
                 }

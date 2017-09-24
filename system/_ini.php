@@ -7,12 +7,6 @@
   _ini.php
   ============================================================================ */
 
-//Définition constante
-define('FC_INI', true);
-
-//Chargement class loader
-require './system/class/Loader.php';
-
 //Chargement des fichiers de ocnfig utilisateurs
 try {
     require './application/config/config.php';
@@ -21,29 +15,6 @@ try {
     require './application/config/route.php';
 } catch (Exception $ex) {
     throw new FraquicomException('Impossible de charger les fichiers de config : ' . $ex->getMessage());
-}
-
-//Adaptation du niveau d'erreur
-if ($config['debug']) {
-    error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-    //ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-} else {
-    error_reporting(0);
-    //ini_set('error_reporting', 0);
-}
-
-//Démarrage de la session
-if (trim(session_id()) === '') {
-    session_start();
-    if (trim($config['session']) != '') {
-        if (!isset($_SESSION[$config['session']])) {
-            $_SESSION[$config['session']] = array();
-        }
-        $_S = & $_SESSION[$config['session']];
-    } else {
-        //Création d'un raccourci pour la session
-        $_S = & $_SESSION;
-    }
 }
 
 //Chargement des fichiers de configaration de l'utilisateur
@@ -74,19 +45,47 @@ if ($config['loader']['all']['config']) {
     }
 }
 
+//Chargement de la class config
+require './system/class/Config.php';
+//Chargement de la class loader
+require './system/class/Loader.php';
+
+//Adaptation du niveau d'erreur
+if ($config['debug']) {
+    error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+    //ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+} else {
+    error_reporting(0);
+    //ini_set('error_reporting', 0);
+}
+
+//Démarrage de la session
+if (trim(session_id()) === '') {
+    session_start();
+    if (trim($config['session']) != '') {
+        if (!isset($_SESSION[$config['session']])) {
+            $_SESSION[$config['session']] = array();
+        }
+        $_S = & $_SESSION[$config['session']];
+    } else {
+        //Création d'un raccourci pour la session
+        $_S = & $_SESSION;
+    }
+}
+
 //Chargement des class Fraquicom
 if ($_config['mode'] == 'mvc') {
     try {
         require './system/fc_class/Fraquicom.php';
         require './system/fc_class/FC_Controller.php';
-        //require './system/fc_class/FC_Model.php';
+        require './system/fc_class/FC_Model.php';
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
 } else {
     try {
         require './system/fc_class/Fraquicom.php';
-        //require './system/fc_class/Fc_Object.php';
+        require './system/fc_class/Fc_Object.php';
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
