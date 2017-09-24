@@ -76,14 +76,14 @@ if ($_config['mode'] == 'mvc') {
     try {
         require './system/fc_class/Fraquicom.php';
         require './system/fc_class/FC_Controller.php';
-        //require './system/fc_class/FC_Model.php';
+        require './system/fc_class/FC_Model.php';
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
 } else {
     try {
         require './system/fc_class/Fraquicom.php';
-        //require './system/fc_class/Fc_Object.php';
+        require './system/fc_class/Fc_Object.php';
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
