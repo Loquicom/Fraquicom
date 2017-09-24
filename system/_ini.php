@@ -7,9 +7,6 @@
   _ini.php
   ============================================================================ */
 
-//Définition constante
-define('FC_INI', true);
-
 //Chargement class loader
 require './system/class/Loader.php';
 

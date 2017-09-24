@@ -7,6 +7,10 @@
   index.php
   ============================================================================ */
 
+//Définition constante
+define('FC_INI', true);
+
+
 //Création des variables global
 global $_config; //Config system
 global $config; //Config application
