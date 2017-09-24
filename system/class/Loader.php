@@ -418,6 +418,23 @@ class Loader {
         }
         return false;
     }
+    
+    /**
+     * Charge un fichier de config
+     * @param string $name - Le nom de la bibliotheque
+     * @return boolean
+     * @throws LoaderException - Erreur pendant le chargement
+     */
+    public function config($name){
+        if(file_exists('./application/config/' . $name . '.php')){
+            try{
+                require './application/config/' . $name . '.php';
+            } catch (Exception $ex) {
+                throw new LoaderException('Erreur pendant le chargement du fichier de config : ' . $ex->getMessage());
+            }
+        }
+        return false;
+    }
 
     /**
      * Execute du code php et renvoie le resultat
