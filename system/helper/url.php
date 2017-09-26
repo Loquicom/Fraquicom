@@ -67,7 +67,13 @@ if (!function_exists('assets_url')) {
      * @return	string
      */
     function assets_url($uri = '') {
-        return './assets/' . $uri;
+        global $_S;
+        $fc = get_instance();
+        if ($fc->config->get('route', 'asset_security')) {
+            return './assets/' . $uri . '/' . $_S['_fc_id'];
+        } else {
+            return './assets/' . $uri;
+        }
     }
 
 }
