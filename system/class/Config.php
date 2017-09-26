@@ -16,6 +16,10 @@ class Config {
         
     }
 
+    /**
+     * Retourne l'instance de config
+     * @return Config
+     */
     public static function get_config() {
         if (self::$config === null) {
             return (self::$config = new Config());
@@ -24,6 +28,13 @@ class Config {
         }
     }
 
+    /**
+     * Accède à une valeur du tableau config
+     * Autant de parametre que de clef pour accéder à la valeur
+     * @global mixed $config
+     * @global mixed $_config
+     * @return false|mixed
+     */
     public function get() {
         global $config;
         global $_config;
@@ -49,6 +60,12 @@ class Config {
         }
     }
     
+    /**
+     * Méthode magique pour accéder à une seul clef dans le tableau de config
+     * $this->config->clef <=> $this->config->get('clef')
+     * @param string $clef
+     * @return false|mixed
+     */
     public function __get($clef) {
         return $this->get($clef);
     }
