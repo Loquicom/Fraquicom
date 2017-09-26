@@ -26,4 +26,10 @@ $route['index'] = 'hello_world';
  */
 $route['404'] = '';
 
+/*
+ * Si activé l'utilisateur obtient un lien non partageable pour accèder aux
+ * assets de l'application
+ */
+$route['asset_security'] = false;
+
 unset($route);

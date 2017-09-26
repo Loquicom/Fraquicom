@@ -63,11 +63,11 @@ if (trim($url) == '') {
     $url = $config['route']['index'];
 }
 //Ajout des parametre get du l'url dans $_GET
-$getParams = explode('?' ,$_SERVER['REQUEST_URI']);
-if(isset($getParams[1])){
+$getParams = explode('?', $_SERVER['REQUEST_URI']);
+if (isset($getParams[1])) {
     //Si il y a des parametres get
     $getParams = explode('&', $getParams[1]);
-    foreach ($getParams as $getParam){
+    foreach ($getParams as $getParam) {
         $getParam = explode('=', $getParam);
         $_GET[$getParam[0]] = $getParam[1];
     }
@@ -75,8 +75,34 @@ if(isset($getParams[1])){
 
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
+
+//Verifie si c'est l'url d'un asset
+if (explode('/', $url)[0] == 'assets') {
+    if ($config['route']['asset_security']) {
+        $urlExpl = explode('/', $url);
+        $clef = $urlExpl[count($urlExpl) - 1];
+        if ($clef != $_S['_fc_id']) {
+            exit(file_get_contents('./system/index.html'));
+        }
+        $url = str_replace('/' . $clef, '', $url);
+    }
+    if (file_exists($url)) {
+        $mime = mime_content_type('./' . $url);
+        header('Content-type:' . $mime);
+        exit(file_get_contents('./' . $url));
+    } else {
+        //Si le fichier n'existe pas
+        if (trim($config['route']['404']) != '') {
+            //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
+            exit($fraquicom->load->view($config['route']['404'], null, true));
+        } else {
+            //Sinon on prend celle par defaut
+            exit(file_get_contents('./system/file/404.html'));
+        }
+    }
+}
 //En mvc
-if ($_config['mode'] == 'mvc') {
+else if ($_config['mode'] == 'mvc') {
     //Découpage de l'url
     $url = explode('/', $url);
     for ($i = 0; $i < count($url); $i++) {
@@ -155,11 +181,11 @@ else {
         require './application/' . $url . '.php';
     } else {
         if (trim($config['route']['404']) != '') {
-                //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
-                exit($fraquicom->load->file($config['route']['404'], null, true));
-            } else {
-                //Sinon on prend celle par defaut
-                exit(file_get_contents('./system/file/404.html'));
-            }
+            //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
+            exit($fraquicom->load->file($config['route']['404'], null, true));
+        } else {
+            //Sinon on prend celle par defaut
+            exit(file_get_contents('./system/file/404.html'));
+        }
     }
 }

@@ -191,37 +191,87 @@ class Fraquicom {
     }
 
     /**
-     * Accède à une valeur de $_POST
-     * @param string $clef - La clef
-     * @param boolean $protect - Protegé la valeur
-     * @return boolean|mixed
+     * Accède à une valeur de $_POST et protge la valeur si possible
+     * Autant de parametre que de clef pour accéder à la valeur
+     * @return false|mixed
      */
-    public function post($clef, $protect = true) {
-        if (isset($_POST[$clef])) {
-            if ($protect && is_string($_POST[$clef])) {
-                return htmlentities($_POST[$clef], ENT_QUOTES);
+    public function post() {
+        //Si pas de parametre
+        if (func_num_args() == 0) {
+            return false;
+        } 
+        //Si un parametre
+        else if (func_num_args() == 1) {
+            //Si la clef existe
+            if (isset($_POST[func_get_arg(0)])) {
+                //Si le resultat est un string on protege la valeur
+                if (is_string($_POST[func_get_arg(0)])) {
+                    return htmlentities($_POST[func_get_arg(0)], ENT_QUOTES);
+                } else {
+                    return $_POST[func_get_arg(0)];
+                }
             } else {
-                return $_POST[$clef];
+                return false;
             }
+        } 
+        //Si + 1 parametre
+        else {
+            $args = func_get_args();
+            $tab = $_POST;
+            foreach ($args as $arg) {
+                if (isset($tab[$arg])) {
+                    $tab = $tab[$arg];
+                } else {
+                    return false;
+                }
+            }
+            if(is_string($tab)){
+                $tab = htmlentities($tab, ENT_QUOTES);
+            }
+            return $tab;
         }
-        return false;
     }
 
     /**
-     * Accède à une valeur de $_GET
-     * @param string $clef - La clef
-     * @param boolean $protect - Protegé la valeur
-     * @return boolean|mixed
+     * Accède à une valeur de $_GET et protge la valeur si possible
+     * Autant de parametre que de clef pour accéder à la valeur
+     * @return false|mixed
      */
-    public function get($clef, $protect = true) {
-        if (isset($_GET[$clef])) {
-            if ($protect && is_string($_GET[$clef])) {
-                return htmlentities($_GET[$clef], ENT_QUOTES);
+    public function get() {
+        //Si pas de parametre
+        if (func_num_args() == 0) {
+            return false;
+        } 
+        //Si un parametre
+        else if (func_num_args() == 1) {
+            //Si la clef existe
+            if (isset($_GET[func_get_arg(0)])) {
+                //Si le resultat est un string on protege la valeur
+                if (is_string($_GET[func_get_arg(0)])) {
+                    return htmlentities($_GET[func_get_arg(0)], ENT_QUOTES);
+                } else {
+                    return $_GET[func_get_arg(0)];
+                }
             } else {
-                return $_GET[$clef];
+                return false;
             }
+        } 
+        //Si + 1 parametre
+        else {
+            $args = func_get_args();
+            $tab = $_GET;
+            foreach ($args as $arg) {
+                if (isset($tab[$arg])) {
+                    $tab = $tab[$arg];
+                } else {
+                    return false;
+                }
+            }
+            if(is_string($tab)){
+                $tab = htmlentities($tab, ENT_QUOTES);
+            }
+            return $tab;
         }
-        return false;
     }
 
 }

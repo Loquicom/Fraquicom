@@ -72,6 +72,10 @@ if (trim(session_id()) === '') {
         $_S = & $_SESSION;
     }
 }
+//Création de la clef de sécurité de la session
+if (!isset($_S['_fc_id'])) {
+    $_S['_fc_id'] = str_replace('=', '-equ-', base64_encode(uniqid(mt_rand(0, 999999))));
+}
 
 //Chargement des class Fraquicom
 if ($_config['mode'] == 'mvc') {

@@ -92,7 +92,7 @@ $htaccess = fopen('./.htaccess', 'w');
 $code = 'Options +FollowSymLinks' . "\r\n\r\n";
 $code .= 'RewriteEngine On' . "\r\n\r\n";
 $code .= 'RewriteBase /' . "\r\n\r\n";
-$code .= 'RewriteCond $1 !^(index\.php|robots\.txt|assets)' . "\r\n\r\n";
+$code .= 'RewriteCond $1 !^(index\.php|robots\.txt)' . "\r\n\r\n";
 $code .= 'RewriteRule ^(.*)$ ' . substr($_SERVER['SCRIPT_NAME'], 1) . '?_fc_r=$1 [L]';
 fwrite($htaccess, $code);
 fclose($htaccess);
