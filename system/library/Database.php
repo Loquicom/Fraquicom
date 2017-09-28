@@ -134,9 +134,10 @@ class Database {
 
     /**
      * Création de la condition where de la requete
-     * Deux façon de l'utiliser
-     * Passage d'un tableau avec clef = champ et valeur = valeur recherché
-     * Passage de la clef et de la valeur en parametre
+     * Trois façon de l'utiliser
+     * Passage d'un tableau avec clef = champ et valeur = valeur recherché ex : where(array('id' => '1'))
+     * Passage de la clef et de la valeur en parametre ex : where('id', '1')
+     * Pasage de la clause where directement (sans le mot clef wehere) ex : where('id = 1 And email is null')
      * @param mixed $data - Les données
      * @param string $val - La valeur
      * @return boolean
@@ -159,6 +160,10 @@ class Database {
                 }
             }
             return true;
+        } 
+        //Sinon si $data est un string c'est une clause where deja ecrite
+        else if (is_string($data)){
+            $this->where = " Where " . $data;
         }
         return false;
     }
@@ -188,7 +193,7 @@ class Database {
      * Retourne tous les champs d'une table avec le where en parametre
      * @see Database::where()
      * @param string $table - Le nom de la table
-     * @param string[] $where - Les champs/valeur pour le where
+     * @param string[]|string $where - Les champs/valeur pour le where | La clause where ecrite sans le mot clef where
      * @param boolean $retour - Retourner le resultat
      * @return false|mixed
      */
@@ -202,7 +207,6 @@ class Database {
         $this->requete .= $this->where;
         if ($this->execute() === false) {
             return false;
-            ;
         }
         if ($retour) {
             return $this->result();
