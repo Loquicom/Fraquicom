@@ -63,36 +63,53 @@ class Database {
      */
     public function __construct($dbName = '') {
         global $config;
-        //Connexion à la base principal
+
+        //On recupére les données de la bonne base
+        $db = null;
         if (trim($dbName) == '') {
-            //Verifie qu'il y a bien une base de donnée parametrée
-            if (trim($config['db']['host']) != '' && $config['db']['name'] != '' && $config['db']['pass'] != '') {
-                if ($config['db']['type'] == 'mysql') {
-                    try {
-                        $this->pdo = new PDO('mysql:host=' . $config['db']['host'] . ';dbname=' . $config['db']['name'] . ';charset=utf8', $config['db']['login'], $config['db']['pass'], self::$driverOptions);
-                        $this->prefix = $config['db']['prefix'];
-                    } catch (Exception $ex) {
-                        throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
-                    }
-                } else {
-                    throw new FraquicomException('Type de base de données incorect');
-                }
+            $db = $config['db'];
+        } else {
+            if(isset($config['db']['other'][$dbName])){
+            $db = $config['db']['other'][$dbName];
             } else {
-                return null;
+                throw new FraquicomException('base de données inexistante : ' . $dbName);
             }
         }
-        //Connexion à une base secondaire
-        else {
-            if ($config['db']['other'][$dbName]['type'] == 'mysql') {
+        
+        //Verifie qu'il y a bien une base de donnée parametrée
+        if (trim($db['host']) != '' && $db['name'] != '') {
+            //MySQL
+            if ($db['type'] == 'mysql') {
                 try {
-                    $this->pdo = new PDO('mysql:host=' . $config['db']['other'][$dbName]['host'] . ';dbname=' . $config['db']['other'][$dbName]['name'] . ';charset=utf8', $config['db']['other'][$dbName]['login'], $config['db']['other'][$dbName]['pass']);
-                    $this->prefix = $config['db']['other'][$dbName]['prefix'];
+                    $this->pdo = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
                 } catch (Exception $ex) {
                     throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
                 }
-            } else {
+            }
+            //SQLite
+            else if ($db['type'] == 'sqlite') {
+                try {
+                    $this->pdo = new PDO('sqlite:' . $db['host'] . $db['name'], null, null, self::$driverOptions);
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //Oracle
+            else if($db['type'] == 'oracle'){
+                try {
+                    $this->pdo = new PDO('ori:dbname=//' . $db['host'] . '/' . $db['name'] . ';charset=utf8' , $db['login'], $db['pass'], self::$driverOptions);
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //Si aucun type erreur
+            else {
                 throw new FraquicomException('Type de base de données incorect');
             }
+            //Ajout prefix
+            $this->prefix = $db['prefix'];
+        } else {
+            return null;
         }
     }
 
@@ -160,9 +177,9 @@ class Database {
                 }
             }
             return true;
-        } 
+        }
         //Sinon si $data est un string c'est une clause where deja ecrite
-        else if (is_string($data)){
+        else if (is_string($data)) {
             $this->where = " Where " . $data;
         }
         return false;
