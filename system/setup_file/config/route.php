@@ -29,6 +29,8 @@ $route['404'] = '';
 /*
  * Si activé l'utilisateur obtient un lien non partageable pour accèder aux
  * assets de l'application
+ * Empeche aussi de mettre les assets en cache
+ * Fonctionne uniquement si routage_asset est activé dans Fraquicom.ini
  */
 $route['asset_security'] = false;
 

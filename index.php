@@ -77,7 +77,7 @@ if (isset($getParams[1])) {
 $_config['current_script'] = $url;
 
 //Verifie si c'est l'url d'un asset
-if (explode('/', $url)[0] == 'assets') {
+if ($_config['routage_asset'] && explode('/', $url)[0] == 'assets') {
     //Si la sécurité sur l'url des assets est active
     if ($config['route']['asset_security']) {
         $urlExpl = explode('/', $url);

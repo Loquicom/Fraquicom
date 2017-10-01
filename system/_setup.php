@@ -13,6 +13,8 @@ if (!file_exists('./fraquicom.ini')) {
     $ini = fopen('./fraquicom.ini', 'w');
     $iniContent = '[mode]' . "\r\n";
     $iniContent .= '    mvc = on' . "\r\n\r\n";
+    $iniContent .= '[route]' . "\r\n";
+    $iniContent .= '    routage_asset = on' . "\r\n\r\n";
     $iniContent .= '[root]' . "\r\n";
     $iniContent .= '    fileroot =' . "\r\n";
     $iniContent .= '    webroot =' . "\r\n";
@@ -89,7 +91,7 @@ $htaccess = fopen('./.htaccess', 'w');
 $code = 'Options +FollowSymLinks' . "\r\n\r\n";
 $code .= 'RewriteEngine On' . "\r\n\r\n";
 $code .= 'RewriteBase /' . "\r\n\r\n";
-$code .= 'RewriteCond $1 !^(index\.php|robots\.txt)' . "\r\n\r\n";
+$code .= 'RewriteCond $1 !^(index\.php|robots\.txt' . (($data['route']['routage_asset'] == 'on') ? '' : '|assets') . ')' . "\r\n\r\n";
 $code .= 'RewriteRule ^(.*)$ ' . substr($_SERVER['SCRIPT_NAME'], 1) . '?_fc_r=$1 [L]';
 fwrite($htaccess, $code);
 fclose($htaccess);
@@ -103,6 +105,7 @@ $webroot = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://'
 $local = fopen('./system/config/local.php', 'w');
 $code = '<?php' . "\r\n\r\n";
 $code .= '$_config[\'root\'] = "' . ((trim($data['root']['fileroot']) != '') ? $data['root']['fileroot'] : $root) . '";' . "\r\n";
+$code .= '$_config[\'routage_asset\'] = ' . (($data['route']['routage_asset'] == 'on') ? 'true' : 'false') . ';' . "\r\n";
 $code .= '$_config[\'web_root\'] = "' . ((trim($data['root']['webroot']) != '') ? $data['root']['webroot'] : $webroot) . '";' . "\r\n";
 $code .= '$_config[\'mode\'] = "' . (($data['mode']['mvc'] == 'on') ? 'mvc' : 'no_mvc') . '";' . "\r\n";
 $code .= '$_config[\'md5\'] = "' . md5_file('./fraquicom.ini') . '";' . "\r\n";

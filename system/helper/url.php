@@ -69,7 +69,7 @@ if (!function_exists('assets_url')) {
     function assets_url($uri = '') {
         global $_S;
         $fc = get_instance();
-        if ($fc->config->get('route', 'asset_security')) {
+        if ($fc->config->get('route', 'asset_security') && $fc->config->get('routage_asset')) {
             return './assets/' . str_replace('=', '-equ-', base64_encode(uniqid() . '|=|' . $uri . '|=|' . mt_rand(1000, 9999))) .'/' . $_S['_fc_id'];
         } else {
             return './assets/' . $uri;
