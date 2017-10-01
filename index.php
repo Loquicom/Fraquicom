@@ -78,19 +78,28 @@ $_config['current_script'] = $url;
 
 //Verifie si c'est l'url d'un asset
 if (explode('/', $url)[0] == 'assets') {
+    //Si la sécurité sur l'url des assets est active
     if ($config['route']['asset_security']) {
         $urlExpl = explode('/', $url);
+        //On verifie la clef
         $clef = $urlExpl[count($urlExpl) - 1];
         if ($clef != $_S['_fc_id']) {
             exit(file_get_contents('./system/index.html'));
         }
-        $url = str_replace('/' . $clef, '', $url);
+        //On decode l'url
+        $urlCode = base64_decode(str_replace('-equ-', '=', $urlExpl[count($urlExpl) - 2]));
+        $urlDecode = explode('|=|', $urlCode)[1];
+        //On récrit correctement l'url (decoder et sans la clef)
+        $url = str_replace($urlExpl[count($urlExpl) - 2], $urlDecode, str_replace('/' . $clef, '', $url));
     }
+    //Si l'asset existe
     if (file_exists($url)) {
         $mime = mime_content_type('./' . $url);
         header('Content-type:' . $mime);
         exit(file_get_contents('./' . $url));
-    } else {
+    } 
+    //Si elle n'existe pas
+    else {
         //Si le fichier n'existe pas
         if (trim($config['route']['404']) != '') {
             //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
