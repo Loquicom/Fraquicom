@@ -192,7 +192,7 @@ class Fraquicom {
 
     /**
      * Accède à une valeur de $_POST et protge la valeur si possible
-     * Autant de parametre que de clef pour accéder à la valeur
+     * Autant de parametre que de clef pour accéder à la valeur ou un tableau avec toutes les clefs
      * @return false|mixed
      */
     public function post() {
@@ -202,8 +202,12 @@ class Fraquicom {
         } 
         //Si un parametre
         else if (func_num_args() == 1) {
+            //Si c'est un tableau de parametre on appel la fonction avec la bonne forme
+            if(is_array(func_get_arg(0))){
+                return call_user_func_array(array($this, 'post'), func_get_arg(0));
+            }
             //Si la clef existe
-            if (isset($_POST[func_get_arg(0)])) {
+            else if (isset($_POST[func_get_arg(0)])) {
                 //Si le resultat est un string on protege la valeur
                 if (is_string($_POST[func_get_arg(0)])) {
                     return htmlentities($_POST[func_get_arg(0)], ENT_QUOTES);
@@ -234,7 +238,7 @@ class Fraquicom {
 
     /**
      * Accède à une valeur de $_GET et protge la valeur si possible
-     * Autant de parametre que de clef pour accéder à la valeur
+     * Autant de parametre que de clef pour accéder à la valeur ou un tableau avec toutes les clefs
      * @return false|mixed
      */
     public function get() {
@@ -244,8 +248,12 @@ class Fraquicom {
         } 
         //Si un parametre
         else if (func_num_args() == 1) {
+            //Si c'est un tableau de parametre on appel la fonction avec la bonne forme
+            if(is_array(func_get_arg(0))){
+                return call_user_func_array(array($this, 'get'), func_get_arg(0));
+            }
             //Si la clef existe
-            if (isset($_GET[func_get_arg(0)])) {
+            else if (isset($_GET[func_get_arg(0)])) {
                 //Si le resultat est un string on protege la valeur
                 if (is_string($_GET[func_get_arg(0)])) {
                     return htmlentities($_GET[func_get_arg(0)], ENT_QUOTES);

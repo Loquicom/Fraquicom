@@ -76,21 +76,89 @@ if (isset($getParams[1])) {
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 
-//Verifie si c'est l'url d'un asset
-if (explode('/', $url)[0] == 'assets') {
+//Routage de l'utilisateur (modifie $url en fonction di fichier de config)
+if (!empty($config['route']['redirect'])) {
+    //On parcours tous mes redirect pour voir si il contient l'url courrante
+    foreach ($config['route']['redirect'] as $chemin => $redirection) {
+        //Regarde si on redirige tous un ensemble ou un seul chemin
+        $ssChemin = false;
+        if ($chemin[strlen($chemin) - 1] == '*') {
+            $ssChemin = true;
+            $chemin = str_replace($chemin[strlen($chemin) - 1], '', $chemin);
+        }
+        //Compare le chemin à l'url courrante
+        $compareUrl = ($url[strlen($url) - 1] != '/') ? $url . '/' : $url;
+        if (substr($compareUrl, 0, strlen($chemin)) == $chemin) {
+            //Si l'url contient le chemin et que tous les sous chemin sont redirigé on redirige
+            if ($ssChemin) {
+                //On remplace l'url courante par la valeur de redirection
+                if ($redirection == '403') { //Deux cas particulier la valeur 403 et 404
+                    exit(file_get_contents('./system/index.html'));
+                } else if ($redirection == '404') {
+                    if (trim($config['route']['404']) != '') {
+                        //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
+                        if ($_config['mode'] == 'mvc') {
+                            exit($fraquicom->load->view($config['route']['404'], null, true));
+                        } else {
+                            exit($fraquicom->load->file($config['route']['404'], null, true));
+                        }
+                    } else {
+                        //Sinon on prend celle par defaut
+                        exit(file_get_contents('./system/file/404.html'));
+                    }
+                }
+                $url = $redirection;
+                break;
+            }
+            //Si l'url est excatement celle de la redirection
+            else if (str_replace('/', '', $url) == str_replace('/', '', $chemin)) {
+                //On remplace l'url courante par la valeur de redirection
+                if ($redirection == '403') { //Deux cas particulier la valeur 403 et 404
+                    exit(file_get_contents('./system/index.html'));
+                } else if ($redirection == '404') {
+                    if (trim($config['route']['404']) != '') {
+                        //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
+                        if ($_config['mode'] == 'mvc') {
+                            exit($fraquicom->load->view($config['route']['404'], null, true));
+                        } else {
+                            exit($fraquicom->load->file($config['route']['404'], null, true));
+                        }
+                    } else {
+                        //Sinon on prend celle par defaut
+                        exit(file_get_contents('./system/file/404.html'));
+                    }
+                }
+                $url = $redirection;
+                break;
+            }
+        }
+    }
+}
+
+//Routage sur asset
+if ($_config['routage_asset'] && explode('/', $url)[0] == 'assets') {
+    //Si la sécurité sur l'url des assets est active
     if ($config['route']['asset_security']) {
         $urlExpl = explode('/', $url);
+        //On verifie la clef
         $clef = $urlExpl[count($urlExpl) - 1];
         if ($clef != $_S['_fc_id']) {
             exit(file_get_contents('./system/index.html'));
         }
-        $url = str_replace('/' . $clef, '', $url);
+        //On decode l'url
+        $urlCode = base64_decode(str_replace('-equ-', '=', $urlExpl[count($urlExpl) - 2]));
+        $urlDecode = explode('|=|', $urlCode)[1];
+        //On récrit correctement l'url (decoder et sans la clef)
+        $url = str_replace($urlExpl[count($urlExpl) - 2], $urlDecode, str_replace('/' . $clef, '', $url));
     }
+    //Si l'asset existe
     if (file_exists($url)) {
         $mime = mime_content_type('./' . $url);
         header('Content-type:' . $mime);
         exit(file_get_contents('./' . $url));
-    } else {
+    }
+    //Si elle n'existe pas
+    else {
         //Si le fichier n'existe pas
         if (trim($config['route']['404']) != '') {
             //Si il y a une page 404 indiqué dans le fichier de config on l'utilise
@@ -101,7 +169,7 @@ if (explode('/', $url)[0] == 'assets') {
         }
     }
 }
-//En mvc
+//Routage en mvc
 else if ($_config['mode'] == 'mvc') {
     //Découpage de l'url
     $url = explode('/', $url);
@@ -168,7 +236,7 @@ else if ($_config['mode'] == 'mvc') {
         call_user_func_array(array($fraquicom->controller($url[0]), $url[1]), $params);
     }
 }
-//En non mvc
+//Routage en non mvc
 else {
     //Création d'un variable courte avec une instance de Fraquicom
     $fc = & $fraquicom;

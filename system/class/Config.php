@@ -30,7 +30,7 @@ class Config {
 
     /**
      * Accède à une valeur du tableau config
-     * Autant de parametre que de clef pour accéder à la valeur
+     * Autant de parametre que de clef pour accéder à la valeur ou un tableau avec toutes les clefs
      * @global mixed $config
      * @global mixed $_config
      * @return false|mixed
@@ -39,15 +39,25 @@ class Config {
         global $config;
         global $_config;
         $conf = array_merge($config, $_config);
+        //Si aucub parametre
         if (func_num_args() == 0) {
             return false;
-        } else if (func_num_args() == 1) {
-            if (isset($conf[func_get_arg(0)])) {
+        } 
+        //Si 1 parametre
+        else if (func_num_args() == 1) {
+            //Si c'est un tableau de parametre on appel la fonction avec la bonne forme
+            if(is_array(func_get_arg(0))){
+                return call_user_func_array(array($this, 'get'), func_get_arg(0));
+            }
+            //Si la clef existe
+            else if (isset($conf[func_get_arg(0)])) {
                 return $conf[func_get_arg(0)];
             } else {
                 return false;
             }
-        } else {
+        } 
+        //Si +1 parametres
+        else {
             $args = func_get_args();
             foreach ($args as $arg) {
                 if (isset($conf[$arg])) {

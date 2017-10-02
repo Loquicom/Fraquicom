@@ -63,36 +63,71 @@ class Database {
      */
     public function __construct($dbName = '') {
         global $config;
-        //Connexion à la base principal
+
+        //On recupére les données de la bonne base
+        $db = null;
         if (trim($dbName) == '') {
-            //Verifie qu'il y a bien une base de donnée parametrée
-            if (trim($config['db']['host']) != '' && $config['db']['name'] != '' && $config['db']['pass'] != '') {
-                if ($config['db']['type'] == 'mysql') {
-                    try {
-                        $this->pdo = new PDO('mysql:host=' . $config['db']['host'] . ';dbname=' . $config['db']['name'] . ';charset=utf8', $config['db']['login'], $config['db']['pass'], self::$driverOptions);
-                        $this->prefix = $config['db']['prefix'];
-                    } catch (Exception $ex) {
-                        throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
-                    }
-                } else {
-                    throw new FraquicomException('Type de base de données incorect');
-                }
+            $db = $config['db'];
+        } else {
+            if (isset($config['db']['other'][$dbName])) {
+                $db = $config['db']['other'][$dbName];
             } else {
-                return null;
+                throw new FraquicomException('base de données inexistante : ' . $dbName);
             }
         }
-        //Connexion à une base secondaire
-        else {
-            if ($config['db']['other'][$dbName]['type'] == 'mysql') {
+
+        //Verifie qu'il y a bien une base de donnée parametrée
+        if (trim($db['host']) != '' && $db['name'] != '') {
+            //MySQL
+            if ($db['type'] == 'mysql') {
                 try {
-                    $this->pdo = new PDO('mysql:host=' . $config['db']['other'][$dbName]['host'] . ';dbname=' . $config['db']['other'][$dbName]['name'] . ';charset=utf8', $config['db']['other'][$dbName]['login'], $config['db']['other'][$dbName]['pass']);
-                    $this->prefix = $config['db']['other'][$dbName]['prefix'];
+                    $host = explode(':', $db['host']);
+                    if (count($host) > 1) {
+                        $this->pdo = new PDO('mysql:host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                    } else {
+                        $this->pdo = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                    }
                 } catch (Exception $ex) {
                     throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
                 }
-            } else {
+            }
+            //SQLite
+            else if ($db['type'] == 'sqlite') {
+                try {
+                    $this->pdo = new PDO('sqlite:' . $db['host'] . $db['name'], null, null, self::$driverOptions);
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //Oracle
+            else if ($db['type'] == 'oracle') {
+                try {
+                    $this->pdo = new PDO('ori:dbname=//' . $db['host'] . '/' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //PostgreSQL
+            else if ($db['type'] == 'postgresql') {
+                try {
+                    $host = explode(':', $db['host']);
+                    if (count($host) > 1) {
+                        $this->pdo = new PDO('pgsql:host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $db['name'] . ';user=' . $db['login'] . ';password=' . $db['pass'], null, null, self::$driverOptions);
+                    } else {
+                        $this->pdo = new PDO('pgsql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';user=' . $db['login'] . ';password=' . $db['pass'], null, null, self::$driverOptions);
+                    }
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //Si aucun type erreur
+            else {
                 throw new FraquicomException('Type de base de données incorect');
             }
+            //Ajout prefix
+            $this->prefix = $db['prefix'];
+        } else {
+            return null;
         }
     }
 
@@ -134,9 +169,10 @@ class Database {
 
     /**
      * Création de la condition where de la requete
-     * Deux façon de l'utiliser
-     * Passage d'un tableau avec clef = champ et valeur = valeur recherché
-     * Passage de la clef et de la valeur en parametre
+     * Trois façon de l'utiliser
+     * Passage d'un tableau avec clef = champ et valeur = valeur recherché ex : where(array('id' => '1'))
+     * Passage de la clef et de la valeur en parametre ex : where('id', '1')
+     * Pasage de la clause where directement (sans le mot clef wehere) ex : where('id = 1 And email is null')
      * @param mixed $data - Les données
      * @param string $val - La valeur
      * @return boolean
@@ -159,6 +195,10 @@ class Database {
                 }
             }
             return true;
+        }
+        //Sinon si $data est un string c'est une clause where deja ecrite
+        else if (is_string($data)) {
+            $this->where = " Where " . $data;
         }
         return false;
     }
@@ -188,7 +228,7 @@ class Database {
      * Retourne tous les champs d'une table avec le where en parametre
      * @see Database::where()
      * @param string $table - Le nom de la table
-     * @param string[] $where - Les champs/valeur pour le where
+     * @param string[]|string $where - Les champs/valeur pour le where | La clause where ecrite sans le mot clef where
      * @param boolean $retour - Retourner le resultat
      * @return false|mixed
      */
@@ -202,7 +242,6 @@ class Database {
         $this->requete .= $this->where;
         if ($this->execute() === false) {
             return false;
-            ;
         }
         if ($retour) {
             return $this->result();
