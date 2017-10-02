@@ -69,19 +69,24 @@ class Database {
         if (trim($dbName) == '') {
             $db = $config['db'];
         } else {
-            if(isset($config['db']['other'][$dbName])){
-            $db = $config['db']['other'][$dbName];
+            if (isset($config['db']['other'][$dbName])) {
+                $db = $config['db']['other'][$dbName];
             } else {
                 throw new FraquicomException('base de données inexistante : ' . $dbName);
             }
         }
-        
+
         //Verifie qu'il y a bien une base de donnée parametrée
         if (trim($db['host']) != '' && $db['name'] != '') {
             //MySQL
             if ($db['type'] == 'mysql') {
                 try {
-                    $this->pdo = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                    $host = explode(':', $db['host']);
+                    if (count($host) > 1) {
+                        $this->pdo = new PDO('mysql:host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                    } else {
+                        $this->pdo = new PDO('mysql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                    }
                 } catch (Exception $ex) {
                     throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
                 }
@@ -95,9 +100,22 @@ class Database {
                 }
             }
             //Oracle
-            else if($db['type'] == 'oracle'){
+            else if ($db['type'] == 'oracle') {
                 try {
-                    $this->pdo = new PDO('ori:dbname=//' . $db['host'] . '/' . $db['name'] . ';charset=utf8' , $db['login'], $db['pass'], self::$driverOptions);
+                    $this->pdo = new PDO('ori:dbname=//' . $db['host'] . '/' . $db['name'] . ';charset=utf8', $db['login'], $db['pass'], self::$driverOptions);
+                } catch (Exception $ex) {
+                    throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
+                }
+            }
+            //PostgreSQL
+            else if ($db['type'] == 'postgresql') {
+                try {
+                    $host = explode(':', $db['host']);
+                    if (count($host) > 1) {
+                        $this->pdo = new PDO('pgsql:host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $db['name'] . ';user=' . $db['login'] . ';password=' . $db['pass'], null, null, self::$driverOptions);
+                    } else {
+                        $this->pdo = new PDO('pgsql:host=' . $db['host'] . ';dbname=' . $db['name'] . ';user=' . $db['login'] . ';password=' . $db['pass'], null, null, self::$driverOptions);
+                    }
                 } catch (Exception $ex) {
                     throw new FraquicomException('Impossible de se connecter à la base : ' . $ex->getMessage());
                 }

@@ -19,6 +19,7 @@ $otherDB = & $config['db']['other'];
  *      - mysql
  *      - sqlite (SQLite 3)
  *      - oracle
+ *      - postgresql
  * 
  * Pour fonctiooner correctement assurer vous que PDO est bien parametré
  */
@@ -27,9 +28,10 @@ $database['type'] = 'mysql';
 /*
  * L'hote de la base de données
  * 
- * mysql : L'hote de la base
+ * mysql : L'hote de la base avec ou sans port (ex : localhost ou localhost:3307)
  * sqlite : Le dossier de la base avec un / (ex : db/sqlite/)
  * oracle : L'hote de la base : le port (ex : localhost:1521)
+ * postgresql : L'hote de la base avec ou sans port (ex : localhost ou localhost:5432)
  */
 $database['host'] = '';
 
@@ -39,6 +41,7 @@ $database['host'] = '';
  * mysql : Le nom de la base
  * sqlite : Le nom du fichier avec l'extension
  * oracle : Le nom de la base
+ * postgresql : Le nom de la base
  */
 $database['name'] = '';
 
@@ -49,6 +52,7 @@ $database['name'] = '';
  * mysql : Le login
  * sqlite : Ne pas modifier
  * oracle : Le login
+ * postgresql : Le login
  */
 $database['login'] = null;
 
@@ -59,6 +63,7 @@ $database['login'] = null;
  * mysql : Le mot de passe
  * sqlite : Ne pas modifier
  * oracle : Le mot de passe
+ * postgresql : Le mot de passe
  */
 $database['pass'] = null;
 
