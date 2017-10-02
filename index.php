@@ -76,7 +76,7 @@ if (isset($getParams[1])) {
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 
-//Routage de l'utilisateur
+//Routage de l'utilisateur (modifie $url en fonction di fichier de config)
 if (!empty($config['route']['redirect'])) {
     //On parcours tous mes redirect pour voir si il contient l'url courrante
     foreach ($config['route']['redirect'] as $chemin => $redirection) {
