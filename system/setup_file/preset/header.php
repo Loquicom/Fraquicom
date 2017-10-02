@@ -27,4 +27,4 @@ defined('FC_INI') or exit('Acces Denied');
 
     <body>
         
-        <main>
+        <main class="container">
