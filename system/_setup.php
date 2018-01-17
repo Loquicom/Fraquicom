@@ -7,6 +7,12 @@
   _setup.php
   ============================================================================ */
 
+//Verifie qu'il est possible d'ecrire
+if(!is_writable('./')){
+    //Erreur impossible d'écrire
+    exit("Impossible de créer les fichiers de configurations");
+}
+
 //Verification que le fichier ini existe
 if (!file_exists('./fraquicom.ini')) {
     //Si il n'existe pas création du fichier avec les valeurs par defauts
@@ -88,6 +94,11 @@ if ($_setup) {
 
 //Création de l'htacces de routage en fonction de l'ini
 $htaccess = fopen('./.htaccess', 'w');
+//Verifie la bonne création du fichier
+if($htaccess === false){
+    //Erreur impossible d'écrire
+    exit("Impossible de créer les fichiers de configurations");
+}
 $code = 'Options +FollowSymLinks' . "\r\n\r\n";
 $code .= 'RewriteEngine On' . "\r\n\r\n";
 $code .= 'RewriteBase /' . "\r\n\r\n";
