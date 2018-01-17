@@ -155,7 +155,7 @@ if ($_config['routage_asset'] && explode('/', $url)[0] == 'assets') {
     if (file_exists($url)) {
         $mime = mime_content_type('./' . $url);
         //Remet le bon mime type pour les fichiers js et css
-        if($mime == 'text/plain'){
+        if(strpos($mime, 'text/') !== false){
             $extension = pathinfo('./' . $url, PATHINFO_EXTENSION);
             if($extension == 'css'){
                 $mime = 'text/css';
