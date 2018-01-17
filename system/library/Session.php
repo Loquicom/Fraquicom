@@ -79,15 +79,15 @@ class Session {
      * @param string $val
      * @return boolean
      */
-    public function add($data, $val = '') {
+    public function add($data, $val = null) {
         global $_S;
         //Si val n'est pas vide, on ne set qu'une donnée
-        if (trim($val) != '' && is_string($data)) {
+        if ($val != null && is_string($data)) {
             $_S[$data] = $val;
             return true;
         }
         //Sinon on set plusieurs dans data
-        else if (is_array($data)) {
+        else if ($val != null && is_array($data)) {
             foreach ($data as $key => $val) {
                 $_S[$key] = $val;
             }
