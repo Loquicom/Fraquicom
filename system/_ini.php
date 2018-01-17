@@ -61,15 +61,20 @@ if ($config['debug']) {
 
 //Démarrage de la session
 if (trim(session_id()) === '') {
-    session_start();
     if (trim($config['session']) != '') {
-        if (!isset($_SESSION[$config['session']])) {
-            $_SESSION[$config['session']] = array();
+        //Parametrage du nom de la session
+        session_name($config['session']);
+    }
+    session_start();
+    //Si l'appli à un nom création d'un sous tableau pour son usage
+    if (trim($config['appli_name']) != '') {
+        if (!isset($_SESSION[$config['appli_name']])) {
+            $_SESSION[$config['appli_name']] = array();
         }
-        $_S = & $_SESSION[$config['session']];
+        $_S = & $_SESSION[$config['appli_name']];
     } else {
-        //Création d'un raccourci pour la session
-        $_S = & $_SESSION;
+        //Erreur le nom de l'appli n'est pas renseigné
+        exit("Aucun nom d'application, veuillez en saisir un dans le fichier config.php");
     }
 }
 //Création de la clef de sécurité de la session
