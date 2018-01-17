@@ -147,7 +147,7 @@ class Fraquicom {
             return $this->load->get_library($name);
         }
         //Sinon un objet ou un model selon le mode
-        if ($this->config['mode'] == 'mvc') {
+        if ($this->config->mode == 'mvc') {
             if ($this->load->get_model($name) !== false) {
                 return $this->load->get_model($name);
             }
