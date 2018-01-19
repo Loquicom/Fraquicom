@@ -53,15 +53,16 @@ if (!function_exists('get_unique_hash')) {
 
     /**
      * Création d'un hash unique
+     * @param string $str - String à ajouter
      * @return string
      */
-    function get_unique_hash() {
-        return md5(uniqid(md5(mt_rand(1, 999999999)), true));
+    function get_unique_hash($str = '') {
+        return md5(uniqid(md5(mt_rand(1, 999999999)) . $str, true));
     }
 
 }
 
-if (!function_exists('compre_string')) {
+if (!function_exists('compare_string')) {
 
     /**
      * Permet de retourner le pourcentage de ressemblance entre les 2 chaines passées en parametre
@@ -69,7 +70,7 @@ if (!function_exists('compre_string')) {
      * @param string $str2
      * @return float retourne le pourcentage de correspondance
      */
-    function compareString($str1, $str2) {
+    function compare_string($str1, $str2) {
         $strlen1 = strlen($str1);
         $strlen2 = strlen($str2);
         $max = max($strlen1, $strlen2);
@@ -153,4 +154,110 @@ if (!function_exists('increment_string')) {
         return isset($match[2]) ? $match[1] . $separator . ($match[2] + 1) : $str . $separator . $first;
     }
 
+}
+
+if(!function_exists('protect_string')){
+    
+    /**
+     * Protege un string
+     * @param string $string - Le string
+     * @param boolean $delTag - [optional] Supprime ou non les balises (defaut non)
+     * @return string
+     */
+    function protect_string($string, $delTag = false){
+        //Si on supprime les balises
+        if($delTag){
+            return strip_tags($string);
+        } else {
+            return htmlentities($string, ENT_QUOTES);
+        }
+    }
+    
+}
+
+if(!function_exists('unprotect_string')){
+    
+    /**
+     * Retire la protection d'un strig
+     * @param string $string - Le string
+     * @return string
+     */
+    function unprotect_string($string){
+        return html_entity_decode($string, ENT_QUOTES);
+    }
+    
+}
+
+if(!function_exists('url_safe_encode')){
+    
+    /**
+     * Encode un string pour pouvoir l'utiliser dans une url
+     * @return string
+     */
+    function url_safe_encode(){
+       $data = base64_encode($string);
+        $data = str_replace(array('+', '/', '='), array('-', '_', '.'), $data);
+        return $data; 
+    }
+    
+}
+
+if(!function_exists('url_safe_decode')){
+    
+    /**
+     * Decode un string encoder par url_safe_encode
+     * @return string
+     */
+    function url_safe_decode($string){
+        $data = str_replace(array('-', '_', '.'), array('+', '/', '='), $string);
+        $mod4 = strlen($data) % 4;
+        if ($mod4) {
+            $data .= substr('====', $mod4);
+        }
+        return base64_decode($data);
+    }
+    
+}
+
+if(!function_exists('crypte')){
+    
+    /**
+     * Chiffre un string
+     * @param string $string - Le string
+     * @param string $clef - La clef pour chiffrer (longueur 16 ou 32)
+     * @param type $methode - le Cipher
+     * @param type $mode - Le mode
+     * @return string
+     */
+    function crypte($string, $clef, $methode = MCRYPT_RIJNDAEL_128, $mode = MCRYPT_MODE_CBC){
+        //Calcul iv
+        $iv_size = mcrypt_get_iv_size($methode, $mode);
+        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        //Crypte
+        $data = $iv . mcrypt_encrypt($methode, $clef, $string, $mode, $iv);
+        return url_safe_encode($data);
+    }
+    
+}
+
+if(!function_exists('decrypte')){
+    
+    /**
+     * Dechiffre un string
+     * @param string $string - Le string
+     * @param string $clef - La clef pour chiffrer (longueur 16 ou 32)
+     * @param type $methode - le Cipher
+     * @param type $mode - Le mode
+     * @return string
+     */
+    function decrypte($string, $clef, $methode = MCRYPT_RIJNDAEL_128, $mode = MCRYPT_MODE_CBC){
+        $tmp = $this->urlsafe_b64decode($string);
+        if (strlen($tmp) < 16) {
+            return false;
+        }
+        $iv = substr($tmp, 0, 16);
+        $data = substr($tmp, 16);
+        return rtrim(mcrypt_decrypt($methode, $clef, $data, $mode, $iv), "\0");
+    }
+    
 }

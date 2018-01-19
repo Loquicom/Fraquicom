@@ -33,6 +33,30 @@ if(!function_exists('make_dir')){
     
 }
 
+if(!function_exists('is_empty')){
+    
+    /**
+     * Indique si un dossier est vide
+     * @param string $path - Le chemin vers le dossier
+     * @param array $ignore - [optional] Fichier à ignorer dans le dossier 
+     * ex : array('index.php', '.htaccess')
+     * @return boolean
+     */
+    function is_empty($path, $ignore = null){
+        //Verifie si le dossier existe
+        if(!file_exists($path)){
+            return false;
+        }
+        //Indique si le dossier est vide
+        $tab = array('..', '.');
+        if($ignore !== null && is_array($ignore) && !empty($ignore)){
+            $tab = array_merge($tab, $ignore);
+        }
+        return empty(array_diff(scandir($path), $tab));
+    }
+    
+}
+
 if (!function_exists('copy_dir')) {
 
     /**
