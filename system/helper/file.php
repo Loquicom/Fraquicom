@@ -8,8 +8,38 @@
   ============================================================================== */
 defined('FC_INI') or exit('Acces Denied');
 
+if(!function_exists('make_dir')){
+    
+    /**
+     * Création d'une arborescence de dossiers si ces derniers n'existe pas
+     * @param string $path - Le chemin
+     * @return boolean
+     */
+    function make_dir($path){
+        //Si le dossier n'existe pas
+        if(!is_dir($path)){
+            //Tentative de création
+            if(make_dir(dirname($path))){
+                @mkdir($path);
+            }
+            //Erreur lors de la creation
+            else {
+                return false;
+            }
+        }
+        //Le dossier est la
+        return true;
+    }
+    
+}
+
 if (!function_exists('copy_dir')) {
 
+    /**
+     * Copie un dossier et son contenue
+     * @param string $src - Dossier soruce
+     * @param string $dst - Destination
+     */
     function copy_dir($src, $dst) {
         $dir = opendir($src);
         @mkdir($dst);
@@ -344,4 +374,85 @@ if (!function_exists('clean_file_name')) {
         return $string . "." . strtolower($ext);
     }
 
+}
+
+if (!function_exists('get_mime_by_extension')) {
+
+    /**
+     * Get Mime by Extension
+     *
+     * Translates a file extension into a mime type based on config/mimes.php.
+     * Returns FALSE if it can't determine the type, or open the mime config file
+     *
+     * Note: this is NOT an accurate way of determining file mime types, and is here strictly as a convenience
+     * It should NOT be trusted, and should certainly NOT be used for security
+     *
+     * @param	string	$filename	File name
+     * @return	false|string
+     */
+    function get_mime_by_extension($filename) {
+        //Verifie que le fichier existe
+        if(!file_exists($filename)){
+            return false;
+        }
+        //Chargement fichier de config mimes.php
+        $fc = get_instance();
+        $fc->load->config('mimes');
+        //Verification de l'extension
+        $extension = strtolower(substr(strrchr($filename, '.'), 1));
+        if (isset($fc->config->mimes[$extension])) {
+            return is_array($fc->config->mimes[$extension]) ? $fc->config->mimes[$extension][0] : $fc->config->mimes[$extension];
+        }
+        return false;
+    }
+
+}
+
+if(!function_exists('get_mime_by_file')){
+    
+    /**
+     * Retourne le mimetype réel d'un fichier, à partir du fichier magic.mime
+     * @param string $filename - Le chemin vers le fichier
+     * @return false|string - Le mimetype ou false
+     */
+    function get_mime_by_file($filename){
+        //Verifie que le fichier existe
+        if(!file_exists($filename)){
+            return false;
+        }
+        //Verification du mimetype
+        return mime_content_type($filename);
+    }
+    
+}
+
+if(!function_exists('get_extension')){
+    
+    /**
+     * Retourne l'extension d'un mimetype
+     * @param string $mime - Le mimetype
+     * @return false|string
+     */
+    function get_extension($mime){
+        //Chargement du fichier mimes.php
+        $fc = get_instance();
+        $fc->load->config('mimes');
+        $mimes = $fc->config->mimes;
+        //Parcours du tableau pour trouver l'extension
+        foreach ($mimes as $ext => $mimetype){
+            //Si plusieurs mimetype pour une extension
+            if(is_array($mimetype)){
+                if(in_array($mime, $mimetype)){
+                    return $ext;
+                }
+            }
+            //Sinon un seul mimetype
+            else if($mime == $mimetype){
+                return $ext;
+            }
+        }
+        //Si aucun resultat
+        return false;
+    }
+    
 }
