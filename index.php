@@ -50,6 +50,34 @@ require './system/_ini.php';
 //Récupération d'une instance de Fraquicom
 $fraquicom = get_instance();
 
+//Regarde si le site est en maintenance
+if ($config['maintenance']) {
+    if (trim($config['route']['maintenance']) != '') {
+        //Si il y a une page indiqué dans le fichier de config on l'utilise
+        if ($_config['mode'] == 'mvc') {
+            //On parse le controller et la méthode
+            $expl = explode('/', $config['route']['maintenance']);
+            $controller = $expl[0];
+            $methode = (isset($expl[1])) ? $expl[1] : 'index';
+            //Chargement du controller
+            $fraquicom->load->controller($controller);
+            //Si il y a des arguments
+            if(count($expl) > 2){
+                unset($expl[0]);
+                unset($expl[1]);
+                call_user_func_array(array($fraquicom->controller($controller), $methode), $expl);
+            } else {
+                $fraquicom->controller($controller)->$methode();
+            }
+        } else {
+            exit($fraquicom->load->file($config['route']['maintenance'], null, true));
+        }
+    } else {
+        //Sinon on prend celle par defaut
+        exit(file_get_contents('./system/file/maintenance.html'));
+    }
+}
+
 //Recupéaration de l'url
 if (isset($_GET['_fc_r'])) {
     $url = $_GET['_fc_r'];
@@ -76,7 +104,7 @@ if (isset($getParams[1])) {
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 
-//Routage de l'utilisateur (modifie $url en fonction di fichier de config)
+//Routage de l'utilisateur (modifie $url en fonction du fichier de config)
 if (!empty($config['route']['redirect'])) {
     //On parcours tous mes redirect pour voir si il contient l'url courrante
     foreach ($config['route']['redirect'] as $chemin => $redirection) {
@@ -155,12 +183,11 @@ if ($_config['routage_asset'] && explode('/', $url)[0] == 'assets') {
     if (file_exists($url)) {
         $mime = mime_content_type('./' . $url);
         //Remet le bon mime type pour les fichiers js et css
-        if(strpos($mime, 'text/') !== false){
+        if (strpos($mime, 'text/') !== false) {
             $extension = pathinfo('./' . $url, PATHINFO_EXTENSION);
-            if($extension == 'css'){
+            if ($extension == 'css') {
                 $mime = 'text/css';
-            }
-            else if($extension == 'js'){
+            } else if ($extension == 'js') {
                 $mime = 'text/javascript';
             }
         }

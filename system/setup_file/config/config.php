@@ -35,3 +35,9 @@ $config['session'] = 'Fraquicom';
  * Obligatoire
  */
 $config['appli_name'] = '%APPLI%';
+
+/**
+ * Indique si le site est en maintenance
+ * Si c'est la cas bloque l'accès
+ */
+$config['maintenance'] = false;

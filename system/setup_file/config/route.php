@@ -14,6 +14,15 @@ $route = & $config['route'];
 $redirect = & $config['route']['redirect'];
 
 /*
+ * Si activé l'utilisateur obtient un lien non partageable pour accèder aux
+ * assets de l'application
+ * Empeche aussi de mettre les assets en cache
+ * Fonctionne uniquement si routage_asset est activé dans fraquicom.json
+ */
+$route['asset_security'] = false;
+
+
+/*
  * Page à charger par defaut
  * En mode mvc le nom du controller[/methode]
  * En mode no_mvc le nom du fichier sans le .php
@@ -21,19 +30,18 @@ $redirect = & $config['route']['redirect'];
 $route['index'] = 'hello_world';
 
 /*
- * Page en cas d'erreur 404
+ * Page à afficher quand le site est en maintenance
  * En mode mvc le nom du controller[/methode]
  * En mode no_mvc le nom du fichier sans le .php
  */
-$route['404'] = '';
+$route['maintenance'] = '';
 
 /*
- * Si activé l'utilisateur obtient un lien non partageable pour accèder aux
- * assets de l'application
- * Empeche aussi de mettre les assets en cache
- * Fonctionne uniquement si routage_asset est activé dans fraquicom.json
+ * Page en cas d'erreur 404
+ * En mode mvc le nom de la vue
+ * En mode no_mvc le nom du fichier sans le .php
  */
-$route['asset_security'] = false;
+$route['404'] = '';
 
 /*
  * Permet de redirigé des pages ou des ensemble de page
