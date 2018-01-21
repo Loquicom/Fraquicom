@@ -34,4 +34,4 @@ $config['session'] = 'Fraquicom';
  * Le nom de l'appli
  * Obligatoire
  */
-$config['appli_name'] = '';
+$config['appli_name'] = '%APPLI%';

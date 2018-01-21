@@ -23,7 +23,7 @@ if (file_exists('./system/config/local.php')) {
 }
 
 //Si aucun fichier de config locale création et de htaccess
-if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && file_exists('./fraquicom.ini'))) {
+if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && file_exists('./fraquicom.json'))) {
     //Si application est deja rempli on recré uniquement les dossier manquants
     if (count(array_diff(scandir('./application/'), array('..', '.', '.htaccess', 'index.html'))) > 0) {
         $_setup = false;
@@ -35,7 +35,7 @@ if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && 
 }
 //Sinon on verifie que le fichier fraquicom.ini n'a pas changé
 else {
-    if (md5_file('./fraquicom.ini') != $_config['md5']) {
+    if (md5_file('./fraquicom.json') != $_config['md5']) {
         //On lance le script de setup
         require './system/_setup.php';
         //On relance se script

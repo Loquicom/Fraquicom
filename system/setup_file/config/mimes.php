@@ -183,3 +183,5 @@ $mimes = array(
 	'ott'	=>	'application/vnd.oasis.opendocument.text-template',
 	'oth'	=>	'application/vnd.oasis.opendocument.text-web'
 );
+
+unset($mimes);

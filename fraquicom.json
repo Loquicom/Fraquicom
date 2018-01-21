@@ -1,0 +1,20 @@
+{
+    
+    "config": {
+        "appli_name": "Fraquicom"
+    },
+    
+    "mode": {
+        "mvc": "on"
+    },
+    
+    "route": {
+        "routage_asset": "on"
+    },
+    
+    "root": {
+        "fileroot": "",
+        "webroot": ""
+    }
+    
+}
