@@ -45,6 +45,8 @@ if ($config['loader']['all']['config']) {
     }
 }
 
+//Chargement de la class error
+require './system/class/Error.php';
 //Chargement de la class config
 require './system/class/Config.php';
 //Chargement de la class loader

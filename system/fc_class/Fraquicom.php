@@ -11,16 +11,23 @@ defined('FC_INI') or exit('Acces Denied');
 class Fraquicom {
 
     /**
+     * Gestion des erreurs du framework
+     * @var Error
+     */
+    public $error = null;
+    
+    /**
+     * Instance de Config qui permet d'acceder au valeurs des fichiers de
+     * configuration
+     * @var Config
+     */
+    public $config = null;
+    
+    /**
      * Le loader du framework
      * @var Loader
      */
     public $load = null;
-
-    /**
-     * Les valeurs du fichier de configuration
-     * @var mixed
-     */
-    public $config = null;
 
     /**
      * Retourne une instance de Fraquicom
@@ -37,6 +44,9 @@ class Fraquicom {
      * @throws FraquicomException
      */
     public function __construct() {
+        //Chargement gestion des erreurs
+        $this->error = Error::get_instance();
+        //Chargement fichier de config
         $this->config = Config::get_config();
         //Chargement de la class loader
         $this->load = Loader::getLoader();
