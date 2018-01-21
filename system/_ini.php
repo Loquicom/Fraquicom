@@ -51,7 +51,7 @@ require './system/class/Config.php';
 require './system/class/Loader.php';
 
 //Adaptation du niveau d'erreur
-if ($config['debug']) {
+if ($config['show_error']) {
     error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
     //ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 } else {

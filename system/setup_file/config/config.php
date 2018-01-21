@@ -9,10 +9,15 @@ config.php.php
 defined('FC_INI') or exit('Acces Denied');
 
 /*
- * Quand debug est activé toutes les erreurs sont affichées, sinon aucune erreur
- * ne s'affiche
+ * Quand debug est activé toutes les erreurs peuvent être affichées, sinon en 
+ * cas d'erreur le site ne charge pas (Erreur 503)
  */
 $config['debug'] = true;
+
+/*
+ * Affiche ou non les erreurs 
+ */
+$config['show_error'] = true;
 
 /*
  * La liste des emails des developpeurs
