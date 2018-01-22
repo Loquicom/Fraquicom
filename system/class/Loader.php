@@ -200,6 +200,10 @@ class Loader {
         if ($this->mode != 'mvc') {
             throw new LoaderException('Mode incompatible avec la methode');
         }
+        //Si un model du meme nom est deja chargé
+        if(isset($this->models[strtolower($name)])){
+           return true; 
+        }
         //On regarde si le fichier existe
         if (file_exists('./application/model/' . $name . '.php')) {
             $minusName = strtolower($name);
@@ -223,6 +227,10 @@ class Loader {
     public function controller($name) {
         if ($this->mode != 'mvc') {
             throw new LoaderException('Mode incompatible avec la methode');
+        }
+        //Si un controller du meme nom est deja chargé
+        if(isset($this->controllers[strtolower($name)])){
+           return true; 
         }
         //On regarde si le fichier existe
         if (file_exists('./application/controller/' . $name . '.php')) {
@@ -291,6 +299,10 @@ class Loader {
     public function object($name) {
         if ($this->mode != 'no_mvc') {
             throw new LoaderException('Mode incompatible avec la methode');
+        }
+        //Si un objet du meme nom est deja chargé
+        if(isset($this->objects[strtolower($name)])){
+           return true; 
         }
         //On regarde si le fichier existe
         if (file_exists('./application/class/' . $name . '.php')) {
