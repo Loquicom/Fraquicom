@@ -11,6 +11,12 @@ defined('FC_INI') or exit('Acces Denied');
 class Fraquicom {
 
     /**
+     * Instance du Fraquicom
+     * @var Fraquicom
+     */
+    private static $instance = null;
+
+    /**
      * Gestion des erreurs du framework
      * @var Error
      */
@@ -34,7 +40,10 @@ class Fraquicom {
      * @return \Fraquicom
      */
     public static function get_instance() {
-        return new Fraquicom();
+        if(self::$instance === null){
+            self::$instance = new Fraquicom();
+        }
+        return self::$instance;
     }
 
     /**
