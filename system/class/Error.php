@@ -60,11 +60,20 @@ class Error {
      * Méthode ajout erreur, ...
      * Gestion log depuis ici ?
      */
+    
+    /**
+     * Lance une erreur
+     * @param string $msg - Le message de l'erreur
+     * @param string $file - Le fichier (utiliser __FILE__)
+     * @param string $line - La ligne (utiliser __LINE__)
+     * @param boolean $isWarning - Si c'est un warning ou une error
+     */
     public function trigger($msg, $file = 'Unknow file', $line = 'Unknow line', $isWarning = false){
         //Selectionne le bon type d'erreur
         $no = ($isWarning) ? E_USER_WARNING : E_USER_ERROR;
-        //Si on utilis ela gestion d'erreur du Fraquicom
+        //Si on utilise la gestion d'erreur du Fraquicom
         if(!self::$use_php_error){
+            //Lance l'erreur via le gestionnaire
             self::error_handler($no, $msg, $file, $line);
         } else {
             //On lance une erreur php
@@ -137,7 +146,7 @@ class Error {
      * @param string $errstr - Le libelle de l'erreur
      * @param string $errfile - Le fichier de l'erreur
      * @param int $errline - Le ligne de l'erreur
-     * @return boolean - Pour executer  ou nonle système de gestion des erreurs
+     * @return boolean - Pour executer ou non le système de gestion des erreurs
      *  de PHP
      */
     public static function error_handler($errno, $errstr, $errfile, $errline) {
