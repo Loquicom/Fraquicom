@@ -12,10 +12,34 @@ define("E_EXCEPTION", 0);
 
 class Error {
 
+    /**
+     * L'instance de Error
+     * @var Error
+     */
     private static $instance = null;
+    
+    /**
+     * L'arret vient t'il d'une exception
+     * @var boolean
+     */
     private static $exception = false;
+    
+    /**
+     * Trace de la derniere exception
+     * @var array
+     */
     private static $excpt_trace = null;
+    
+    /**
+     * Fonction d'erreur de l'utilisateur
+     * @var function
+     */
     private static $custom_handler = null;
+    
+    /**
+     * Utilisez ou non le gestionnaire d'erreur de php
+     * @var boolean
+     */
     private static $use_php_error = false;
 
     private function __construct() {
@@ -117,6 +141,12 @@ class Error {
      *  de PHP
      */
     public static function error_handler($errno, $errstr, $errfile, $errline) {
+        //Si on est pas en debug, on affiche rien pour la securite
+        global $config;
+        if(!$config['debug']){
+            header("HTTP/1.0 503 Service Unavailable");
+            exit;
+        }
         //Récupération de la trace
         $trace = array();
         if (self::$exception) {
