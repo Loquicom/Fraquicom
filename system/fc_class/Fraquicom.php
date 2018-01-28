@@ -17,17 +17,23 @@ class Fraquicom {
     private static $instance = null;
 
     /**
-     * Gestion des erreurs du framework
-     * @var Error
-     */
-    public $error = null;
-    
-    /**
      * Instance de Config qui permet d'acceder au valeurs des fichiers de
      * configuration
      * @var Config
      */
     public $config = null;
+    
+    /**
+     * Gestion des logs du framework
+     * @var Log
+     */
+    public $log = null;
+    
+    /**
+     * Gestion des erreurs du framework
+     * @var Error
+     */
+    public $error = null;
     
     /**
      * Le loader du framework
@@ -53,10 +59,12 @@ class Fraquicom {
      * @throws FraquicomException
      */
     public function __construct() {
-        //Chargement gestion des erreurs
-        $this->error = Error::get_instance();
         //Chargement fichier de config
         $this->config = Config::get_config();
+        //Chargement log
+        $this->log = new Log("Fraquicom Log", $this->config->get('data_path') . 'log/' . date('Y-m-d_') . session_id() . '.log', true, false);
+        //Chargement gestion des erreurs
+        $this->error = Error::get_instance();
         //Chargement de la class loader
         $this->load = Loader::getLoader();
         //Chargement des fichiers demandé par l'utilisateur

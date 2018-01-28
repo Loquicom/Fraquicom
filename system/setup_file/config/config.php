@@ -9,10 +9,22 @@ config.php.php
 defined('FC_INI') or exit('Acces Denied');
 
 /*
- * Quand debug est activé toutes les erreurs peuvent être affichées, sinon en 
- * cas d'erreur le site ne charge pas (Erreur 503)
+ * Le nom de l'appli
+ * Obligatoire
  */
-$config['debug'] = true;
+$config['appli_name'] = '%APPLI%';
+
+/*
+ * Chemin vers le dossier des stockages des fichiers 
+ * /!\ Chemin en absolue et fini par un /
+ */
+$config['data_path'] = '%DATA%';
+
+/*
+ * Chemin vers le dossier des stockages des fichiers termporaires
+ * /!\ Chemin en absolue et fini par un /
+ */
+$config['tmp_path'] = '%TMP%';
 
 /*
  * Affiche ou non les erreurs 
@@ -34,12 +46,6 @@ $config['version'] = '1.0.0';
  * Vide pour ne pas utiliser
  */
 $config['session'] = 'Fraquicom';
-
-/*
- * Le nom de l'appli
- * Obligatoire
- */
-$config['appli_name'] = '%APPLI%';
 
 /**
  * Indique si le site est en maintenance

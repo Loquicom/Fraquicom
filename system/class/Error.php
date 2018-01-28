@@ -17,25 +17,49 @@ class Error {
      * @var Error
      */
     private static $instance = null;
-    
+
     /**
      * L'arret vient t'il d'une exception
      * @var boolean
      */
     private static $exception = false;
-    
+
     /**
      * Trace de la derniere exception
      * @var array
      */
     private static $excpt_trace = null;
-    
+
     /**
      * Fonction d'erreur de l'utilisateur
      * @var function
      */
     private static $custom_handler = null;
     
+    /**
+     * Fonction a appeler en cas d'erreur
+     * @var function
+     */
+    private static $action_error = null;
+    
+    /**
+     * Fonction a appeler en cas d'exception
+     * @var function
+     */
+    private static $action_exception = null;
+    
+    /**
+     * Fonction a appeler en cas de connexion abandonnée
+     * @var function
+     */
+    private static $action_aborted = null;
+    
+    /**
+     * Fonction a appeler quand il n'y a aucun probleme
+     * @var function
+     */
+    private static $action_ok = null;
+
     /**
      * Utilisez ou non le gestionnaire d'erreur de php
      * @var boolean
@@ -56,11 +80,6 @@ class Error {
         return self::$instance;
     }
 
-    /*
-     * Méthode ajout erreur, ...
-     * Gestion log depuis ici ?
-     */
-    
     /**
      * Lance une erreur
      * @param string $msg - Le message de l'erreur
@@ -68,17 +87,55 @@ class Error {
      * @param string $line - La ligne (utiliser __LINE__)
      * @param boolean $isWarning - Si c'est un warning ou une error
      */
-    public function trigger($msg, $file = 'Unknow file', $line = 'Unknow line', $isWarning = false){
+    public function trigger($msg, $file = 'Unknow file', $line = 'Unknow line', $isWarning = false) {
         //Selectionne le bon type d'erreur
         $no = ($isWarning) ? E_USER_WARNING : E_USER_ERROR;
         //Si on utilise la gestion d'erreur du Fraquicom
-        if(!self::$use_php_error){
+        if (!self::$use_php_error) {
             //Lance l'erreur via le gestionnaire
             self::error_handler($no, $msg, $file, $line);
         } else {
             //On lance une erreur php
             trigger_error($msg, $no);
         }
+    }
+
+    /**
+     * Ajoute une erreur dans les log
+     * @param int $type - Le type d'erreur à ajouter (utiliser les constantes E_)
+     * @param string $msg - Le message de l'erreur
+     * @param string $file - Le fichier (utiliser __FILE__)
+     * @param string $line - La ligne (utiliser __LINE__)
+     * @param array $trace - Trace de l'éxecution, tableau de tableau. Chaque 
+     * sous tableau doit contenir un champ function, si les champs class, type,
+     * file et line existe ils sont pris en compte (pour plus d'info voir
+     * debug_backtrace)
+     * @return false
+     */
+    public function add($type, $msg, $file = 'Unknow file', $line = 'Unknow line', $trace = array()) {
+        //Debut log
+        $fc = get_instance();
+        $fc->log->startLog(date('H:i:s') . '(' . time() . ')');
+        $fc->log->addLine('Error add by $this->error->add()', 'info');
+        $fc->log->addLine(self::get_type_error($type) . " : " . $msg . " (" . $file . ", line " . $line . ")", ($type == E_ERROR || $type == E_USER_ERROR || $type == E_EXCEPTION) ? 'err' : 'warn');
+        //Ajout trace
+        if (!empty($trace)) {
+            $i = 1;
+            foreach ($trace as $t) {
+                //Recup nom de la fonction
+                $fonction = $t['function'] . '()';
+                if (isset($t['class'])) {
+                    $fonction = $t['class'] . $t['type'] . $fonction;
+                }
+                //Autre info
+                $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
+                $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
+                //Ajout ligne log
+                $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+            }
+        }
+        $fc->log->endLog();
+        return false;
     }
 
     /* ----- Méthode parametrage gestion erreur ----- */
@@ -113,6 +170,38 @@ class Error {
     public function use_php_error($bool) {
         self::$use_php_error = (boolean) $bool;
     }
+    
+    /**
+     * Change l'action à faire en cas d'erreur
+     * @param function $callback - La fonction à appeler (laisse vide pour retirer)
+     */
+    public function set_action_error($callback = null){
+        self::$action_error = $callback;
+    }
+    
+    /**
+     * Change l'action à faire en cas d'exception
+     * @param function $callback - La fonction à appeler (laisse vide pour retirer)
+     */
+    public function set_action_exception($callback = null){
+        self::$action_exception = $callback;
+    }
+    
+    /**
+     * Change l'action à faire en cas d'abandon de connexion
+     * @param function $callback - La fonction à appeler (laisse vide pour retirer)
+     */
+    public function set_action_aborted($callback = null){
+        self::$action_aborted = $callback;
+    }
+    
+    /**
+     * Change l'action à faire quand il n'y a aucun probleme
+     * @param function $callback - La fonction à appeler (laisse vide pour retirer)
+     */
+    public function set_action_ok($callback = null){
+        self::$action_ok = $callback;
+    }
 
     /* ----- Méthode gestion des erreurs ----- */
 
@@ -120,24 +209,39 @@ class Error {
      * Methode appelé lors de l'arret 
      */
     public static function shutdown() {
+        //Recuperation fraquicom
+        $fc = get_instance();
         //Si la connexion a été abandonnée par le client
         if (connection_aborted()) {
-            return;
+            //Si une action à faire
+            if(self::$action_aborted !== null){
+                self::$action_aborted();
+            }
+        }
+        //Si arret exception
+        else if (self::$exception) {
+            self::$exception = false;
+            //Si une action à faire
+            if(self::$action_exception !== null){
+                self::$action_exception();
+            }
         }
         //Si l'arret est lié à une erreur
-        if (error_get_last() !== null) {
-            //ToDo Log erreur
-            echo 'err';
-            return;
+        else if (error_get_last() !== null) {
+            //Si une action à faire
+            if(self::$action_error !== null){
+                self::$action_error();
+            }
         }
-        if (self::$exception) {
-            //ToDo Log exception
-            echo 'excpt';
-            self::$exception = false;
-            return;
+        //Si arret quand tous est ok
+        else {
+            //Si une action à faire
+            if(self::$action_ok !== null){
+                self::$action_ok();
+            }
         }
-        //ToDo si arret quand tous est ok
-        echo 'ok';
+        //On fini le log
+        $fc->log->writeLog();
     }
 
     /**
@@ -150,12 +254,6 @@ class Error {
      *  de PHP
      */
     public static function error_handler($errno, $errstr, $errfile, $errline) {
-        //Si on est pas en debug, on affiche rien pour la securite
-        global $config;
-        if(!$config['debug']){
-            header("HTTP/1.0 503 Service Unavailable");
-            exit;
-        }
         //Récupération de la trace
         $trace = array();
         if (self::$exception) {
@@ -176,6 +274,25 @@ class Error {
             //Affiche uniquement si l'on utilise pas la gestion d'erreur php
             echo self::html_error(self::get_type_error($errno), $errstr, $errfile, $errline, $trace);
         }
+        //Ajoute dans le log l'erreur
+        $fc = get_instance();
+        $fc->log->startLog(date('H:i:s') . '(' . time() . ')');
+        $fc->log->addLine(self::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? 'err' : 'warn');
+        $i = 1;
+        foreach ($trace as $t) {
+            //Recup nom de la fonction
+            $fonction = $t['function'] . '()';
+            if (isset($t['class'])) {
+                $fonction = $t['class'] . $t['type'] . $fonction;
+            }
+            //Autre info
+            $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
+            $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
+            //Ajout ligne log
+            $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+        }
+        $fc->log->endLog();
+        //Retour
         return !self::$use_php_error;
     }
 

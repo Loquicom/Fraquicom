@@ -45,13 +45,6 @@ if ($config['loader']['all']['config']) {
     }
 }
 
-//Chargement de la class error
-require './system/class/Error.php';
-//Chargement de la class config
-require './system/class/Config.php';
-//Chargement de la class loader
-require './system/class/Loader.php';
-
 //Adaptation du niveau d'erreur
 if ($config['show_error']) {
     error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
@@ -84,6 +77,15 @@ if (!isset($_S['_fc_id'])) {
     $_S['_fc_id'] = str_replace('=', '-equ-', base64_encode(uniqid(mt_rand(0, 999999))));
 }
 
+//Chargement de la class log
+require './system/class/Log.php';
+//Chargement de la class error
+require './system/class/Error.php';
+//Chargement de la class config
+require './system/class/Config.php';
+//Chargement de la class loader
+require './system/class/Loader.php';
+
 //Chargement des class Fraquicom
 if ($_config['mode'] == 'mvc') {
     try {
@@ -100,6 +102,35 @@ if ($_config['mode'] == 'mvc') {
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
+}
+
+//Verifie que data_path et tmp_path ne sont pas vide
+if(trim($config['data_path']) == '' || trim($config['tmp_path']) == ''){
+    throw new FraquicomException('Les chemins data_path et tmp_path ne sont pas renseigné');
+}
+
+//Création du dossier data et tmp si besoins
+if (!(file_exists($config['data_path'] . 'log/') && file_exists($config['tmp_path']))) {
+    _ini_dir($config['data_path'] . 'log/');
+    _ini_dir($config['tmp_path']);
+}
+
+/* --- Fonction _ini.php --- */
+
+function _ini_dir($path) {
+    //Si le dossier n'existe pas
+    if (!is_dir($path)) {
+        //Tentative de création
+        if (_ini_dir(dirname($path))) {
+            @mkdir($path);
+        }
+        //Erreur lors de la creation
+        else {
+            return false;
+        }
+    }
+    //Le dossier est la
+    return true;
 }
 
 /* --- Fonction Fraquicom --- */

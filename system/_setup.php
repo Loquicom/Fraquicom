@@ -23,7 +23,9 @@ if (!file_exists('./fraquicom.json')) {
     }
     fwrite($file, json_encode(array(
         'config' => array(
-            'appli_name' => 'Fraquicom'
+            'appli_name' => 'Fraquicom',
+            'data_path' => '',
+            'tmp_path' => ''
         ),
         'mode' => array(
             'mvc' => 'on'
@@ -100,8 +102,12 @@ if ($_setup) {
         copy('./system/setup_file/preset/hello_world.php', './application/hello_world.php');
     }
 }
-//Ajout du nom de l'application dans le fichier de config
-file_put_contents("./application/config/config.php", str_replace("%APPLI%", $data['config']['appli_name'], file_get_contents("./application/config/config.php")));
+//Ajout des infos dans le fichier de config
+file_put_contents("./application/config/config.php", 
+        str_replace("%APPLI%", $data['config']['appli_name'], 
+                str_replace("%DATA%", str_replace("\\", "\\\\", $data['config']['data_path']), 
+                        str_replace("%TMP%", str_replace("\\", "\\\\", $data['config']['tmp_path']), 
+                                file_get_contents("./application/config/config.php")))));
 
 //Création de l'htacces de routage en fonction de l'ini
 $htaccess = fopen('./.htaccess', 'w');
@@ -123,11 +129,14 @@ if (!file_exists('./system/config/')) {
     @mkdir('./system/config');
 }
 $root = ($_SERVER['REQUEST_URI'] == '/') ? './' : $_SERVER['REQUEST_URI'];
+$root = ((trim($data['root']['fileroot']) != '') ? $data['root']['fileroot'] : $root);
 $webroot = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$file_root = mb_substr(str_replace("\\", "/", __FILE__), 0, strpos(str_replace("\\", "/", __FILE__) , $root) + strlen($root));
 $local = fopen('./system/config/local.php', 'w');
 $code = '<?php' . "\r\n\r\n";
-$code .= '$_config[\'root\'] = "' . ((trim($data['root']['fileroot']) != '') ? $data['root']['fileroot'] : $root) . '";' . "\r\n";
+$code .= '$_config[\'root\'] = "' . $root . '";' . "\r\n";
 $code .= '$_config[\'routage_asset\'] = ' . (($data['route']['routage_asset'] == 'on') ? 'true' : 'false') . ';' . "\r\n";
+$code .= '$_config[\'file_root\'] = "' . $file_root . '";' . "\r\n";
 $code .= '$_config[\'web_root\'] = "' . ((trim($data['root']['webroot']) != '') ? $data['root']['webroot'] : $webroot) . '";' . "\r\n";
 $code .= '$_config[\'mode\'] = "' . (($data['mode']['mvc'] == 'on') ? 'mvc' : 'no_mvc') . '";' . "\r\n";
 $code .= '$_config[\'md5\'] = "' . md5_file('./fraquicom.json') . '";' . "\r\n";
