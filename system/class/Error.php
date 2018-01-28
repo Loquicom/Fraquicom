@@ -215,7 +215,8 @@ class Error {
         if (connection_aborted()) {
             //Si une action à faire
             if(self::$action_aborted !== null){
-                self::$action_aborted();
+                $function = self::$action_aborted;
+                $function();
             }
         }
         //Si arret exception
@@ -223,21 +224,24 @@ class Error {
             self::$exception = false;
             //Si une action à faire
             if(self::$action_exception !== null){
-                self::$action_exception();
+                $function = self::$action_exception;
+                $function();
             }
         }
         //Si l'arret est lié à une erreur
         else if (error_get_last() !== null) {
             //Si une action à faire
             if(self::$action_error !== null){
-                self::$action_error();
+                $function = self::$action_error;
+                $function();
             }
         }
         //Si arret quand tous est ok
         else {
             //Si une action à faire
             if(self::$action_ok !== null){
-                self::$action_ok();
+                $function = self::$action_ok;
+                $function();
             }
         }
         //On fini le log
@@ -269,7 +273,8 @@ class Error {
         }
         //Si on apelle une fonction custom
         if (self::$custom_handler !== null) {
-            self::$custom_handler($errno, $errstr, $errfile, $errline, $trace);
+            $handler = self::$custom_handler;
+            $handler($errno, $errstr, $errfile, $errline, $trace);
         } else if (!self::$use_php_error) {
             //Affiche uniquement si l'on utilise pas la gestion d'erreur php
             echo self::html_error(self::get_type_error($errno), $errstr, $errfile, $errline, $trace);
