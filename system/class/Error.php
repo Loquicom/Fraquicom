@@ -297,7 +297,6 @@ class Error {
             $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
         }
         $fc->log->endLog();
-        var_dump($fc->log);
         //Retour
         return !self::$use_php_error;
     }
