@@ -281,7 +281,7 @@ class Error {
         }
         //Ajoute dans le log l'erreur
         $fc = get_instance();
-        $fc->log->startLog(date('H:i:s') . '(' . time() . ')');
+        $fc->log->startLog(date('H:i:s') . '(' . uniqid() . ')');
         $fc->log->addLine(self::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? 'err' : 'warn');
         $i = 1;
         foreach ($trace as $t) {
@@ -297,6 +297,7 @@ class Error {
             $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
         }
         $fc->log->endLog();
+        var_dump($fc->log);
         //Retour
         return !self::$use_php_error;
     }
@@ -361,7 +362,7 @@ class Error {
     private static function html_error($errlib, $errstr, $errfile, $errline, $trace) {
         $html = <<<HTML
 <div style="max-width: 80vw; margin: auto">
-    <div style="border: black dashed 2px; box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);">
+    <div style="margin-bottom: 1em; border: black dashed 2px; box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);">
         <div style="padding-left: 1em; border-bottom: black dashed 2px; background-color: #ffecb3">
             <img src="http://img.loquicom.fr/fraquicom.svg" width="40" height="40" alt="Logo Fraquicom" style="display: inline-block">
             <div style="display: inline-block; position: relative"><strong style="position: absolute; top: -25px">Fraquicom</strong></div>
