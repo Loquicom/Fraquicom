@@ -13,6 +13,7 @@ try {
     require './application/config/database.php';
     require './application/config/loader.php';
     require './application/config/route.php';
+    require './application/config/acl.php';
 } catch (Exception $ex) {
     throw new FraquicomException('Impossible de charger les fichiers de config : ' . $ex->getMessage());
 }
@@ -85,6 +86,8 @@ require './system/class/Error.php';
 require './system/class/Config.php';
 //Chargement de la class loader
 require './system/class/Loader.php';
+//Chargement de la class acl
+require './system/class/Acl.php';
 
 //Chargement des class Fraquicom
 if ($_config['mode'] == 'mvc') {

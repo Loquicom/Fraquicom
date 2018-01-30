@@ -34,7 +34,7 @@ class Session {
             $this->data['_fc_flash'] = array();
         }
         //Zone information pour les variables temporaire
-        if (!isset($_S['_fc_temp'])) {
+        if (!isset($this->data['_fc_temp'])) {
             $this->data['_fc_temp'] = array();
         }
         //Mise à jour des varaibles temporaire

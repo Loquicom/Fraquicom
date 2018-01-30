@@ -65,7 +65,7 @@ class Loader {
      * Retourne l'instance du loader
      * @return Loader
      */
-    public static function getLoader() {
+    public static function get_instance() {
         if (self::$instance === null) {
             self::$instance = new Loader();
         }

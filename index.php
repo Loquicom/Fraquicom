@@ -98,9 +98,23 @@ if (isset($getParams[1])) {
     foreach ($getParams as $getParam) {
         $getParam = explode('=', $getParam);
         $_GET[$getParam[0]] = $getParam[1];
+        $_REQUEST[$getParam[0]] = $getParam[1];
     }
 }
 
+//Verification si l'utilisateur à le droit d'accès
+if(!$fraquicom->acl->verify($url)){
+    //Si pas le droit on renvoie sur la page approprié
+    if($config['acl_403']){
+        exit(file_get_contents('./system/index.html'));
+    } else {
+        //Ajout d'un param get pour indiquer le changement de page
+        $_GET['fc_acl'] = $url;
+        $_REQUEST['fc_acl'] = $url;
+        //changement de page
+        $url = $config['route']['index'];
+    }
+}
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 

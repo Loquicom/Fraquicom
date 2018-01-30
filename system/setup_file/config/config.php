@@ -47,6 +47,17 @@ $config['version'] = '1.0.0';
  */
 $config['session'] = 'Fraquicom';
 
+/*
+ * Active ou desactive les acl 
+ */
+$config['acl'] = true;
+
+/**
+ * Si vrai on affiche une erreur 403 à l'utilisateur lorsqu'il n'a pas accès à
+ * une page, sinon on le redirige sur la page d'accueil du site
+ */
+$config['acl_403'] = false;
+
 /**
  * Indique si le site est en maintenance
  * Si c'est la cas bloque l'accès

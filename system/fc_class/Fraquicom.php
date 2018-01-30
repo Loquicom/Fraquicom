@@ -42,6 +42,12 @@ class Fraquicom {
     public $load = null;
 
     /**
+     * La gestion des accès du framework
+     * @var Acl 
+     */
+    public $acl = null;
+    
+    /**
      * Retourne une instance de Fraquicom
      * @return \Fraquicom
      */
@@ -60,13 +66,15 @@ class Fraquicom {
      */
     public function __construct() {
         //Chargement fichier de config
-        $this->config = Config::get_config();
+        $this->config = Config::get_instance();
         //Chargement log
         $this->log = new Log("Fraquicom Log", $this->config->get('data_path') . 'log/' . date('Y-m-d_') . session_id() . '.log', true, false);
         //Chargement gestion des erreurs
         $this->error = Error::get_instance();
         //Chargement de la class loader
-        $this->load = Loader::getLoader();
+        $this->load = Loader::get_instance();
+        //Chargement acl
+        $this->acl = Acl::get_instance();
         //Chargement des fichiers demandé par l'utilisateur
         //Chargment Helper
         if ($this->config->get('loader', 'all', 'helper')) {
