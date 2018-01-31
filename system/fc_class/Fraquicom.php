@@ -11,23 +11,51 @@ defined('FC_INI') or exit('Acces Denied');
 class Fraquicom {
 
     /**
+     * Instance du Fraquicom
+     * @var Fraquicom
+     */
+    private static $instance = null;
+
+    /**
+     * Instance de Config qui permet d'acceder au valeurs des fichiers de
+     * configuration
+     * @var Config
+     */
+    public $config = null;
+    
+    /**
+     * Gestion des logs du framework
+     * @var Log
+     */
+    public $log = null;
+    
+    /**
+     * Gestion des erreurs du framework
+     * @var Error
+     */
+    public $error = null;
+    
+    /**
      * Le loader du framework
      * @var Loader
      */
     public $load = null;
 
     /**
-     * Les valeurs du fichier de configuration
-     * @var mixed
+     * La gestion des accès du framework
+     * @var Acl 
      */
-    public $config = null;
-
+    public $acl = null;
+    
     /**
      * Retourne une instance de Fraquicom
      * @return \Fraquicom
      */
     public static function get_instance() {
-        return new Fraquicom();
+        if(self::$instance === null){
+            self::$instance = new Fraquicom();
+        }
+        return self::$instance;
     }
 
     /**
@@ -37,9 +65,16 @@ class Fraquicom {
      * @throws FraquicomException
      */
     public function __construct() {
-        $this->config = Config::get_config();
+        //Chargement fichier de config
+        $this->config = Config::get_instance();
+        //Chargement log
+        $this->log = new Log("Fraquicom Log", $this->config->get('data_path') . 'log/' . date('Y-m-d_') . session_id() . '.log', true, false);
+        //Chargement gestion des erreurs
+        $this->error = Error::get_instance();
         //Chargement de la class loader
-        $this->load = Loader::getLoader();
+        $this->load = Loader::get_instance();
+        //Chargement acl
+        $this->acl = Acl::get_instance();
         //Chargement des fichiers demandé par l'utilisateur
         //Chargment Helper
         if ($this->config->get('loader', 'all', 'helper')) {
@@ -147,7 +182,7 @@ class Fraquicom {
             return $this->load->get_library($name);
         }
         //Sinon un objet ou un model selon le mode
-        if ($this->config['mode'] == 'mvc') {
+        if ($this->config->mode == 'mvc') {
             if ($this->load->get_model($name) !== false) {
                 return $this->load->get_model($name);
             }
@@ -157,128 +192,6 @@ class Fraquicom {
                 return $this->load->get_object($name);
             }
             return false;
-        }
-    }
-
-    /**
-     * Permet d'acèder au données des fichier de config chargé
-     * @param string $champ - Le nom du champ
-     * @return boolean|mixed
-     */
-    public function config($champ) {
-        if (is_string($champ)) {
-            if (isset($this->config[$champ])) {
-                return $this->config[$champ];
-            } else {
-                return false;
-            }
-        } else if (is_array($champ) && !empty($champ)) {
-            if (isset($this->config[$champ[0]])) {
-                $tmpConfig = $this->config;
-                foreach ($champ as $val) {
-                    if (isset($tmpConfig[$val])) {
-                        $tmpConfig = $tmpConfig[$val];
-                    } else {
-                        return false;
-                    }
-                }
-                return $tmpConfig;
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Accède à une valeur de $_POST et protge la valeur si possible
-     * Autant de parametre que de clef pour accéder à la valeur ou un tableau avec toutes les clefs
-     * @return false|mixed
-     */
-    public function post() {
-        //Si pas de parametre
-        if (func_num_args() == 0) {
-            return false;
-        } 
-        //Si un parametre
-        else if (func_num_args() == 1) {
-            //Si c'est un tableau de parametre on appel la fonction avec la bonne forme
-            if(is_array(func_get_arg(0))){
-                return call_user_func_array(array($this, 'post'), func_get_arg(0));
-            }
-            //Si la clef existe
-            else if (isset($_POST[func_get_arg(0)])) {
-                //Si le resultat est un string on protege la valeur
-                if (is_string($_POST[func_get_arg(0)])) {
-                    return htmlentities($_POST[func_get_arg(0)], ENT_QUOTES);
-                } else {
-                    return $_POST[func_get_arg(0)];
-                }
-            } else {
-                return false;
-            }
-        } 
-        //Si + 1 parametre
-        else {
-            $args = func_get_args();
-            $tab = $_POST;
-            foreach ($args as $arg) {
-                if (isset($tab[$arg])) {
-                    $tab = $tab[$arg];
-                } else {
-                    return false;
-                }
-            }
-            if(is_string($tab)){
-                $tab = htmlentities($tab, ENT_QUOTES);
-            }
-            return $tab;
-        }
-    }
-
-    /**
-     * Accède à une valeur de $_GET et protge la valeur si possible
-     * Autant de parametre que de clef pour accéder à la valeur ou un tableau avec toutes les clefs
-     * @return false|mixed
-     */
-    public function get() {
-        //Si pas de parametre
-        if (func_num_args() == 0) {
-            return false;
-        } 
-        //Si un parametre
-        else if (func_num_args() == 1) {
-            //Si c'est un tableau de parametre on appel la fonction avec la bonne forme
-            if(is_array(func_get_arg(0))){
-                return call_user_func_array(array($this, 'get'), func_get_arg(0));
-            }
-            //Si la clef existe
-            else if (isset($_GET[func_get_arg(0)])) {
-                //Si le resultat est un string on protege la valeur
-                if (is_string($_GET[func_get_arg(0)])) {
-                    return htmlentities($_GET[func_get_arg(0)], ENT_QUOTES);
-                } else {
-                    return $_GET[func_get_arg(0)];
-                }
-            } else {
-                return false;
-            }
-        } 
-        //Si + 1 parametre
-        else {
-            $args = func_get_args();
-            $tab = $_GET;
-            foreach ($args as $arg) {
-                if (isset($tab[$arg])) {
-                    $tab = $tab[$arg];
-                } else {
-                    return false;
-                }
-            }
-            if(is_string($tab)){
-                $tab = htmlentities($tab, ENT_QUOTES);
-            }
-            return $tab;
         }
     }
 

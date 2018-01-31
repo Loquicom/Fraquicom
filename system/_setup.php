@@ -7,25 +7,42 @@
   _setup.php
   ============================================================================ */
 
-//Verification que le fichier ini existe
-if (!file_exists('./fraquicom.ini')) {
-    //Si il n'existe pas création du fichier avec les valeurs par defauts
-    $ini = fopen('./fraquicom.ini', 'w');
-    $iniContent = '[mode]' . "\r\n";
-    $iniContent .= '    mvc = on' . "\r\n\r\n";
-    $iniContent .= '[route]' . "\r\n";
-    $iniContent .= '    routage_asset = on' . "\r\n\r\n";
-    $iniContent .= '[root]' . "\r\n";
-    $iniContent .= '    fileroot =' . "\r\n";
-    $iniContent .= '    webroot =' . "\r\n";
-    fwrite($ini, $iniContent);
-    fclose($ini);
+//Verifie qu'il est possible d'ecrire
+if (!is_writable('./')) {
+    //Erreur impossible d'écrire
+    exit("Impossible de créer les fichiers de configurations");
 }
 
-//Chargement du parser
-require './system/class/LcParser.php';
-$parser = new LcParser(INI, './fraquicom.ini');
-$data = $parser->getData();
+//Verification que le fichier json existe
+if (!file_exists('./fraquicom.json')) {
+    //Création du fichier
+    $file = fopen('./fraquicom.json', 'w');
+    if ($file === false) {
+        //Erreur impossible d'écrire
+        exit("Impossible de créer les fichiers de configurations");
+    }
+    fwrite($file, json_encode(array(
+        'config' => array(
+            'appli_name' => 'Fraquicom',
+            'data_path' => '',
+            'tmp_path' => ''
+        ),
+        'mode' => array(
+            'mvc' => 'on'
+        ),
+        'route' => array(
+            'routage_asset' => 'on'
+        ),
+        'root' => array(
+            'fileroot' => '',
+            'webroot' => ''
+        )
+    ), JSON_PRETTY_PRINT));
+    fclose($file);
+}
+
+//Chargement du fichier json
+$data = json_decode(file_get_contents('./fraquicom.json'), JSON_OBJECT_AS_ARRAY);
 
 //Si on setup le dossier application
 if ($_setup) {
@@ -88,9 +105,20 @@ if ($_setup) {
         copy('./system/setup_file/preset/footer.php', './application/footer.php');
     }
 }
+//Ajout des infos dans le fichier de config
+file_put_contents("./application/config/config.php", 
+        str_replace("%APPLI%", $data['config']['appli_name'], 
+                str_replace("%DATA%", str_replace("\\", "\\\\", $data['config']['data_path']), 
+                        str_replace("%TMP%", str_replace("\\", "\\\\", $data['config']['tmp_path']), 
+                                file_get_contents("./application/config/config.php")))));
 
 //Création de l'htacces de routage en fonction de l'ini
 $htaccess = fopen('./.htaccess', 'w');
+//Verifie la bonne création du fichier
+if ($htaccess === false) {
+    //Erreur impossible d'écrire
+    exit("Impossible de créer les fichiers de configurations");
+}
 $code = 'Options +FollowSymLinks' . "\r\n\r\n";
 $code .= 'RewriteEngine On' . "\r\n\r\n";
 $code .= 'RewriteBase /' . "\r\n\r\n";
@@ -104,14 +132,17 @@ if (!file_exists('./system/config/')) {
     @mkdir('./system/config');
 }
 $root = ($_SERVER['REQUEST_URI'] == '/') ? './' : $_SERVER['REQUEST_URI'];
+$root = ((trim($data['root']['fileroot']) != '') ? $data['root']['fileroot'] : $root);
 $webroot = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+$file_root = mb_substr(str_replace("\\", "/", __FILE__), 0, strpos(str_replace("\\", "/", __FILE__) , $root) + strlen($root));
 $local = fopen('./system/config/local.php', 'w');
 $code = '<?php' . "\r\n\r\n";
-$code .= '$_config[\'root\'] = "' . ((trim($data['root']['fileroot']) != '') ? $data['root']['fileroot'] : $root) . '";' . "\r\n";
+$code .= '$_config[\'root\'] = "' . $root . '";' . "\r\n";
 $code .= '$_config[\'routage_asset\'] = ' . (($data['route']['routage_asset'] == 'on') ? 'true' : 'false') . ';' . "\r\n";
+$code .= '$_config[\'file_root\'] = "' . $file_root . '";' . "\r\n";
 $code .= '$_config[\'web_root\'] = "' . ((trim($data['root']['webroot']) != '') ? $data['root']['webroot'] : $webroot) . '";' . "\r\n";
 $code .= '$_config[\'mode\'] = "' . (($data['mode']['mvc'] == 'on') ? 'mvc' : 'no_mvc') . '";' . "\r\n";
-$code .= '$_config[\'md5\'] = "' . md5_file('./fraquicom.ini') . '";' . "\r\n";
+$code .= '$_config[\'md5\'] = "' . md5_file('./fraquicom.json') . '";' . "\r\n";
 fwrite($local, $code);
 fclose($local);
 

@@ -11,43 +11,62 @@ defined('FC_INI') or exit('Acces Denied');
 class Session {
 
     /**
+     * Lien vers un sous tableau de la session pour stocker les valeurs utilisé
+     * pour le bon fonctionnement de la class
+     * @var mixed
+     */
+    private $data;
+    
+    /**
      * Ajoute les champs pour la class si besoin et verifie les variables temporaire
      * @global array $_S - La session
      */
     public function __construct() {
         global $_S;
+        global $config;
+        //Lien vers la zone de stockage des données
+        if(!isset($_SESSION['_fc_data_' . $config['appli_name']])){
+            $_SESSION['_fc_data_' . $config['appli_name']] = array();
+        }
+        $this->data = & $_SESSION['_fc_data_' . $config['appli_name']];
         //Zone information pour les variables flash
-        if (!isset($_S['_fc_flash'])) {
-            $_S['_fc_flash'] = array();
+        if (!isset($this->data['_fc_flash'])) {
+            $this->data['_fc_flash'] = array();
         }
         //Zone information pour les variables temporaire
-        if (!isset($_S['_fc_temp'])) {
-            $_S['_fc_temp'] = array();
+        if (!isset($this->data['_fc_temp'])) {
+            $this->data['_fc_temp'] = array();
         }
         //Mise à jour des varaibles temporaire
         $this->verify_temp();
     }
 
     /**
-     * Renvoie la valeur associé à la clef dans la session
+     * Renvoie la valeur associé à la clef dans la session ou tous $_S
      * @global array $_S - La session
      * @param string $clef
      * @return false|mixed
      */
-    public function get($clef) {
+    public function get($clef = null) {
         global $_S;
         //Mise à jour des varaibles temporaire
         $this->verify_temp();
-        if (isset($_S[$clef])) {
+        //Si il n'y a pas de clef
+        if($clef === null){
+            //On renvoie tous $_S
+            return $_S;
+        }
+        //Sino si la clef existe
+        else if (isset($_S[$clef])) {
             //On regarde si c'est une variable flash
-            if (array_key_exists($clef, $_S['_fc_flash'])) {
+            if (array_key_exists($clef, $this->data['_fc_flash'])) {
                 //On recupere la valeur
                 $val = $_S[$clef];
                 //On retire une utilisation
-                $_S['_fc_flash'][$clef] --;
+                $this->data['_fc_flash'][$clef] --;
                 //Si il n'y a plus d'utilisation on supprime
-                if ($_S['_fc_flash'][$clef] <= 0) {
-                    unset($_S['_fc_flash'][$clef]);
+                if ($this->data['_fc_flash'][$clef] <= 0) {
+                    unset($this->data['_fc_flash'][$clef]);
                     unset($_S[$clef]);
                 }
                 //Renvoie de la valeur
@@ -69,6 +88,14 @@ class Session {
     public function __get($clef) {
         return $this->get($clef);
     }
+    
+    /**
+     * Renvoie toutes les infos dans la session
+     * @return mixed La session
+     */
+    public function get_all(){
+        return $_SESSION; 
+    }
 
     /**
      * Ajoute une ou des valeurs dans la session
@@ -79,15 +106,15 @@ class Session {
      * @param string $val
      * @return boolean
      */
-    public function add($data, $val = '') {
+    public function add($data, $val = null) {
         global $_S;
         //Si val n'est pas vide, on ne set qu'une donnée
-        if (trim($val) != '' && is_string($data)) {
+        if ($val != null && is_string($data)) {
             $_S[$data] = $val;
             return true;
         }
         //Sinon on set plusieurs dans data
-        else if (is_array($data)) {
+        else if ($val != null && is_array($data)) {
             foreach ($data as $key => $val) {
                 $_S[$key] = $val;
             }
@@ -114,14 +141,14 @@ class Session {
         //Si val n'est pas vide, on ne set qu'une donnée
         if (trim($val) != '' && is_string($data)) {
             $_S[$data] = $val;
-            $_S['_fc_flash'][$data] = $nbUtilisation;
+            $this->data['_fc_flash'][$data] = $nbUtilisation;
             return true;
         }
         //Sinon on set plusieurs dans data
         else if (is_array($data)) {
             foreach ($data as $key => $val) {
                 $_S[$key] = $val;
-                $_S['_fc_flash'][$key] = $nbUtilisation;
+                $this->data['_fc_flash'][$key] = $nbUtilisation;
             }
             return true;
         }
@@ -146,14 +173,14 @@ class Session {
         //Si val n'est pas vide, on ne set qu'une donnée
         if (trim($val) != '' && is_string($data)) {
             $_S[$data] = $val;
-            $_S['_fc_temp'][$data] = time() + $temps;
+            $this->data['_fc_temp'][$data] = time() + $temps;
             return true;
         }
         //Sinon on set plusieurs dans data
         else if (is_array($data)) {
             foreach ($data as $key => $val) {
                 $_S[$key] = $val;
-                $_S['_fc_temp'][$key] = time() + $temps;
+                $this->data['_fc_temp'][$key] = time() + $temps;
             }
             return true;
         }
@@ -199,8 +226,8 @@ class Session {
             unset($_S[$key]);
         }
         //Recreation zone flash et temporaire
-        $_S['_fc_flash'] = array();
-        $_S['_fc_temp'] = array();
+        $this->data['_fc_flash'] = array();
+        $this->data['_fc_temp'] = array();
         return true;
     }
 
@@ -211,12 +238,12 @@ class Session {
     private function verify_temp() {
         global $_S;
         //On parcours toutes les variables temporaire
-        if (!empty($_S['_fc_temp'])) {
-            foreach ($_S['_fc_temp'] as $key => $tmpFin) {
+        if (!empty($this->data['_fc_temp'])) {
+            foreach ($this->data['_fc_temp'] as $key => $tmpFin) {
                 //Si le timestamp actuel est plus grand que celui de fin on supprime
                 if ($tmpFin < time()) {
-                    unset($_S['_fc_temp'][$key]);
-                    unset($_S[$key]);
+                    unset($this->data['_fc_temp'][$key]);
+                    unset($this->data[$key]);
                 }
             }
         }

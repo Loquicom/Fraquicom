@@ -20,7 +20,7 @@ class Config {
      * Retourne l'instance de config
      * @return Config
      */
-    public static function get_config() {
+    public static function get_instance() {
         if (self::$config === null) {
             return (self::$config = new Config());
         } else {

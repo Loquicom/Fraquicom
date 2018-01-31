@@ -13,6 +13,7 @@ try {
     require './application/config/database.php';
     require './application/config/loader.php';
     require './application/config/route.php';
+    require './application/config/acl.php';
 } catch (Exception $ex) {
     throw new FraquicomException('Impossible de charger les fichiers de config : ' . $ex->getMessage());
 }
@@ -45,13 +46,8 @@ if ($config['loader']['all']['config']) {
     }
 }
 
-//Chargement de la class config
-require './system/class/Config.php';
-//Chargement de la class loader
-require './system/class/Loader.php';
-
 //Adaptation du niveau d'erreur
-if ($config['debug']) {
+if ($config['show_error']) {
     error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
     //ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
 } else {
@@ -61,21 +57,37 @@ if ($config['debug']) {
 
 //Démarrage de la session
 if (trim(session_id()) === '') {
-    session_start();
     if (trim($config['session']) != '') {
-        if (!isset($_SESSION[$config['session']])) {
-            $_SESSION[$config['session']] = array();
+        //Parametrage du nom de la session
+        session_name($config['session']);
+    }
+    session_start();
+    //Si l'appli à un nom création d'un sous tableau pour son usage
+    if (trim($config['appli_name']) != '') {
+        if (!isset($_SESSION[$config['appli_name']])) {
+            $_SESSION[$config['appli_name']] = array();
         }
-        $_S = & $_SESSION[$config['session']];
+        $_S = & $_SESSION[$config['appli_name']];
     } else {
-        //Création d'un raccourci pour la session
-        $_S = & $_SESSION;
+        //Erreur le nom de l'appli n'est pas renseigné
+        exit("Aucun nom d'application, veuillez en saisir un dans le fichier config.php");
     }
 }
 //Création de la clef de sécurité de la session
 if (!isset($_S['_fc_id'])) {
     $_S['_fc_id'] = str_replace('=', '-equ-', base64_encode(uniqid(mt_rand(0, 999999))));
 }
+
+//Chargement de la class log
+require './system/class/Log.php';
+//Chargement de la class error
+require './system/class/Error.php';
+//Chargement de la class config
+require './system/class/Config.php';
+//Chargement de la class loader
+require './system/class/Loader.php';
+//Chargement de la class acl
+require './system/class/Acl.php';
 
 //Chargement des class Fraquicom
 if ($_config['mode'] == 'mvc') {
@@ -93,6 +105,35 @@ if ($_config['mode'] == 'mvc') {
     } catch (Exception $ex) {
         throw new FraquicomException('Impossible de charger les class Fraquicom : ' . $ex->getMessage());
     }
+}
+
+//Verifie que data_path et tmp_path ne sont pas vide
+if(trim($config['data_path']) == '' || trim($config['tmp_path']) == ''){
+    throw new FraquicomException('Les chemins data_path et tmp_path ne sont pas renseigné');
+}
+
+//Création du dossier data et tmp si besoins
+if (!(file_exists($config['data_path'] . 'log/') && file_exists($config['tmp_path']))) {
+    _ini_dir($config['data_path'] . 'log/');
+    _ini_dir($config['tmp_path']);
+}
+
+/* --- Fonction _ini.php --- */
+
+function _ini_dir($path) {
+    //Si le dossier n'existe pas
+    if (!is_dir($path)) {
+        //Tentative de création
+        if (_ini_dir(dirname($path))) {
+            @mkdir($path);
+        }
+        //Erreur lors de la creation
+        else {
+            return false;
+        }
+    }
+    //Le dossier est la
+    return true;
 }
 
 /* --- Fonction Fraquicom --- */

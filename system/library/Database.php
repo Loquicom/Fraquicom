@@ -72,7 +72,7 @@ class Database {
             if (isset($config['db']['other'][$dbName])) {
                 $db = $config['db']['other'][$dbName];
             } else {
-                throw new FraquicomException('base de données inexistante : ' . $dbName);
+                throw new FraquicomException('Base de données inexistante : ' . $dbName);
             }
         }
 
@@ -467,18 +467,27 @@ class Database {
         return false;
     }
 
-    /**
+     /**
      * Securise et execute une requete sql
      * @param string $sql - Une requete sql, si vide prend celle de la class
-     * @return boolean
+     * @param boolean $excep - Renvoie ou non l'exception si il y en a une (renvoie false sinon)
+     * @param boolean $statement - Renvoie le PDOstatement si pas d'erreur (sinon renvoie le resultat de pdostm->execute())
+     * @return boolean|string|PDOstatement
      */
-    public function execute($sql = '') {
+    public function execute($sql = '', $excep = false, $statement = false) {
         //Si il y a une requete en parametre on l'execute
         if (trim($sql) != '') {
             try {
                 $this->statement = $this->pdo->prepare($sql);
+                if($statement){
+                    $this->statement->execute();
+                    return $this->statement;
+                }
                 return $this->statement->execute();
             } catch (Exception $ex) {
+                if($excep){
+                    return $ex->getMessage();
+                }
                 return false;
             }
         }
@@ -486,8 +495,15 @@ class Database {
         else if (trim($this->requete) != '') {
             try {
                 $this->statement = $this->pdo->prepare($this->requete);
+                if($statement){
+                    $this->statement->execute();
+                    return $this->statement;
+                }
                 return $this->statement->execute();
             } catch (Exception $ex) {
+                if($excep){
+                    return $ex->getMessage();
+                }
                 return false;
             }
         } else {

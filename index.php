@@ -23,7 +23,7 @@ if (file_exists('./system/config/local.php')) {
 }
 
 //Si aucun fichier de config locale création et de htaccess
-if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && file_exists('./fraquicom.ini'))) {
+if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && file_exists('./fraquicom.json'))) {
     //Si application est deja rempli on recré uniquement les dossier manquants
     if (count(array_diff(scandir('./application/'), array('..', '.', '.htaccess', 'index.html'))) > 0) {
         $_setup = false;
@@ -35,7 +35,7 @@ if (!(file_exists('./system/config/local.php') && file_exists('./.htaccess') && 
 }
 //Sinon on verifie que le fichier fraquicom.ini n'a pas changé
 else {
-    if (md5_file('./fraquicom.ini') != $_config['md5']) {
+    if (md5_file('./fraquicom.json') != $_config['md5']) {
         //On lance le script de setup
         require './system/_setup.php';
         //On relance se script
@@ -49,6 +49,34 @@ require './system/_ini.php';
 
 //Récupération d'une instance de Fraquicom
 $fraquicom = get_instance();
+
+//Regarde si le site est en maintenance
+if ($config['maintenance']) {
+    if (trim($config['route']['maintenance']) != '') {
+        //Si il y a une page indiqué dans le fichier de config on l'utilise
+        if ($_config['mode'] == 'mvc') {
+            //On parse le controller et la méthode
+            $expl = explode('/', $config['route']['maintenance']);
+            $controller = $expl[0];
+            $methode = (isset($expl[1])) ? $expl[1] : 'index';
+            //Chargement du controller
+            $fraquicom->load->controller($controller);
+            //Si il y a des arguments
+            if(count($expl) > 2){
+                unset($expl[0]);
+                unset($expl[1]);
+                call_user_func_array(array($fraquicom->controller($controller), $methode), $expl);
+            } else {
+                $fraquicom->controller($controller)->$methode();
+            }
+        } else {
+            exit($fraquicom->load->file($config['route']['maintenance'], null, true));
+        }
+    } else {
+        //Sinon on prend celle par defaut
+        exit(file_get_contents('./system/file/maintenance.html'));
+    }
+}
 
 //Recupéaration de l'url
 if (isset($_GET['_fc_r'])) {
@@ -70,13 +98,27 @@ if (isset($getParams[1])) {
     foreach ($getParams as $getParam) {
         $getParam = explode('=', $getParam);
         $_GET[$getParam[0]] = $getParam[1];
+        $_REQUEST[$getParam[0]] = $getParam[1];
     }
 }
 
+//Verification si l'utilisateur à le droit d'accès
+if(!$fraquicom->acl->verify($url)){
+    //Si pas le droit on renvoie sur la page approprié
+    if($config['acl_403']){
+        exit(file_get_contents('./system/index.html'));
+    } else {
+        //Ajout d'un param get pour indiquer le changement de page
+        $_GET['fc_acl'] = $url;
+        $_REQUEST['fc_acl'] = $url;
+        //changement de page
+        $url = $config['route']['index'];
+    }
+}
 //Ajout dans la variable $_config du script appelé
 $_config['current_script'] = $url;
 
-//Routage de l'utilisateur (modifie $url en fonction di fichier de config)
+//Routage de l'utilisateur (modifie $url en fonction du fichier de config)
 if (!empty($config['route']['redirect'])) {
     //On parcours tous mes redirect pour voir si il contient l'url courrante
     foreach ($config['route']['redirect'] as $chemin => $redirection) {
@@ -155,12 +197,11 @@ if ($_config['routage_asset'] && explode('/', $url)[0] == 'assets') {
     if (file_exists($url)) {
         $mime = mime_content_type('./' . $url);
         //Remet le bon mime type pour les fichiers js et css
-        if($mime == 'text/plain'){
+        if (strpos($mime, 'text/') !== false) {
             $extension = pathinfo('./' . $url, PATHINFO_EXTENSION);
-            if($extension == 'css'){
+            if ($extension == 'css') {
                 $mime = 'text/css';
-            }
-            else if($extension == 'js'){
+            } else if ($extension == 'js') {
                 $mime = 'text/javascript';
             }
         }
