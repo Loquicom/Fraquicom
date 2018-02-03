@@ -24,8 +24,8 @@ $loader['all'] = array(
 
 /*
  * Indique quel fichier de config doivent etre chargé en permanence
- * Les fichier config.php, database.php, loader.php et route.php sont toujours
- * chargé
+ * Les fichier config.php, database.php, loader.php, acl.php et route.php sont 
+ * toujours chargé
  */
 $loader['config'] = array();
 
