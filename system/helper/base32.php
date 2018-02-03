@@ -58,7 +58,7 @@ if(!function_exists('base32_decode')){
 		if (empty($string)) {
             return '';
         }
-        $base32chars = $this->_getBase32LookupTable();
+        $base32chars = base32_table();
         $base32charsFlipped = array_flip($base32chars);
         $paddingCharCount = substr_count($string, $base32chars[32]);
         $allowedValues = array(6, 4, 3, 1, 0);
