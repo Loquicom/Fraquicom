@@ -8,54 +8,54 @@
   ============================================================================ */
 defined('FC_INI') or exit('Acces Denied');
 
-if(!function_exists('base32_table')){
+if (!function_exists('base32_table')) {
 
-	/**
-	 * Table de codage Base 32
-	 * @return mixed - La table de codage
-	 */
-	public function base32_table(){
-		return array(
+    /**
+     * Table de codage Base 32
+     * @return mixed - La table de codage
+     */
+    function base32_table() {
+        return array(
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
             'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
             'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 23
             'Y', 'Z', '2', '3', '4', '5', '6', '7', // 31
             '=', // padding char
         );
-	}
+    }
 
 }
 
-if(!function_exists('base32_encode')){
+if (!function_exists('base32_encode')) {
 
-	/**
-	 * Encode un string en base 32
-	 * @param string $string - Le string à encoder
-	 * @return string - Le string encoder
-	 */
-	public function base32_encode($string){
-		//Recup table carac
-		$validChars = base32_table();
-		//Encodage
-		$code = '';
-		for ($i = 0; $i < strlen($string); ++$i) {
+    /**
+     * Encode un string en base 32
+     * @param string $string - Le string à encoder
+     * @return string - Le string encoder
+     */
+    function base32_encode($string) {
+        //Recup table carac
+        $validChars = base32_table();
+        //Encodage
+        $code = '';
+        for ($i = 0; $i < strlen($string); ++$i) {
             $code .= $validChars[ord($string[$i]) & 31];
         }
         //Retour
         return $code;
-	}
+    }
 
 }
 
-if(!function_exists('base32_decode')){
+if (!function_exists('base32_decode')) {
 
-	/**
-	 * Decode un string en base 32
-	 * @param string $string - Le string à decoder
-	 * @return string - Le string decoder
-	 */
-	public function base32_decode($string){
-		if (empty($string)) {
+    /**
+     * Decode un string en base 32
+     * @param string $string - Le string à decoder
+     * @return string - Le string decoder
+     */
+    function base32_decode($string) {
+        if (empty($string)) {
             return '';
         }
         $base32chars = base32_table();
@@ -88,6 +88,6 @@ if(!function_exists('base32_decode')){
             }
         }
         return $binaryString;
-	}
+    }
 
 }
