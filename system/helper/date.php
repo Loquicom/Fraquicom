@@ -57,17 +57,36 @@ if (!function_exists('convert_date')) {
 if (!function_exists('diff_date')) {
 
     /**
-     * Compare deux date
+     * Fait la difference entre deux dates
      * @param string $date1
-     * @param int
+     * @param string $date2
+     * @param int La difference
      */
     function diff_date($date1, $date2) {
         $date1 = convert_date('%Y%m%d', $date1);
         $date2 = convert_date('%Y%m%d', $date2);
-
         return ($date1 - $date2);
     }
+}
 
+if (!function_exists('compare_date')){
+
+	/**
+	 * Compare deux dates 
+	 * @param string $date1 
+	 * @param string $date2
+	 * @return int -1 $date1 plus ancienne que $date2, 0 même date, 1 $date1 plus recente que $date2
+	 */
+	function compare_date($date1, $date2){
+		$res = diff_date($date1, $date2);
+		if($res < 0){
+			return -1;
+		} else if($res > 0){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }
 
 if (!function_exists('days_between_dates')) {
