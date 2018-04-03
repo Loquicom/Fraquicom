@@ -27,6 +27,7 @@ define('CHECK_URL', 4);
 define('CHECK_DATE', 5);
 define('CHECK_PHONE', 6);
 define('CHECK_ARRAY', 7);
+define('CHECK_REQUIRED', 8);
 
 class Form {
 
@@ -68,7 +69,7 @@ class Form {
      * Accède à une valeur dans un des tableaux
      * Autant de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * Si aucune clef rencoie le tableau $_POST
+     * Si aucune clef renvoie le tableau $_POST
      * @params int $tab - Le tableau visé (FORM_POST, FORM_GET, ...)
      * @params string $clef - La 1er clef pour accerder à la valeur
      * @return false|mixed
@@ -120,7 +121,7 @@ class Form {
      * Accède à une valeur de $_POST
      * Autant de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * Si aucune clef rencoie le tableau $_POST
+     * Si aucune clef renvoie le tableau $_POST
      * @return false|mixed
      */
     public function post() {
@@ -172,7 +173,7 @@ class Form {
      * Accède à une valeur de $_GET
      * Autant de parametre que de clef pour accéder à la valeur ou un tableau
      * avec toutes les clefs
-     * Si aucune clef rencoie le tableau $_GET
+     * Si aucune clef renvoie le tableau $_GET
      * @return false|mixed
      */
     public function get() {
@@ -224,7 +225,7 @@ class Form {
      * Accède à une valeur de $_REQUEST et protge la valeur si possible
      * Autant de parametre que de clef pour accéder à la valeur ou un tableau
      * avec toutes les clefs
-     * Si aucune clef rencoie le tableau $_REQUEST
+     * Si aucune clef renvoie le tableau $_REQUEST
      * @return false|mixed
      */
     public function request() {
@@ -281,7 +282,7 @@ class Form {
      * @params string $clef - La 1er clef pour accerder à la valeur. Autant 
      * de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * @return mixed|false - La valeur ou false si elle ne correspond pas
+     * @return mixed|false - La valeur ou false si elle ne correspond pas ou est introuvable
      */
     public function check($tab, $check, $clef) {
         //Dans Request
@@ -332,7 +333,7 @@ class Form {
      * @params string $clef - La 1er clef pour accerder à la valeur. Autant 
      * de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * @return mixed|false - La valeur ou false si elle ne correspond pas
+     * @return mixed|false - La valeur ou false si elle ne correspond pas ou est introuvable
      */
     public function check_post($check, $clef) {
         //Recup de la valeur
@@ -359,7 +360,7 @@ class Form {
      * @params string $clef - La 1er clef pour accerder à la valeur. Autant 
      * de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * @return mixed|false - La valeur ou false si elle ne correspond pas
+     * @return mixed|false - La valeur ou false si elle ne correspond pas ou est introuvable
      */
     public function check_get($check, $clef) {
         //Recup de la valeur
@@ -386,7 +387,7 @@ class Form {
      * @params string $clef - La 1er clef pour accerder à la valeur. Autant 
      * de parametre que de clef pour accéder à la valeur ou un tableau 
      * avec toutes les clefs
-     * @return mixed|false - La valeur ou false si elle ne correspond pas
+     * @return mixed|false - La valeur ou false si elle ne correspond pas ou est introuvable
      */
     public function check_request($check, $clef) {
         //Recup de la valeur
@@ -408,15 +409,61 @@ class Form {
     }
 
     /**
+     * Test un ensemble de champs
+     * @param int $tab - Le tableau (FORM_REQUEST, FORM_POST, ...)
+     * @param mixed $data - Le champs à tester et les test à effectuer
+     * Sous la forme array("champs" => array(CHECK_, CHECK_, ...), ...)
+     * @return boolean
+     */ 
+    public function check_form($tab, $data){
+        //On recupere le bon tableau
+        switch ($tab) {
+            case FORM_POST:
+                $tab = $_POST;
+                break;
+            case FORM_GET:
+                $tab = $_GET;
+                break;
+            case FORM_REQUEST:
+                $tab = $_REQUEST;
+                break;
+            default:
+                return false;
+        }
+        //On parcours les champs à verifier
+        foreach ($data as $champ => $verif) {
+            //On recupere la valeur dans le tableau
+            if(!isset($tab[$champ])){
+                //Si elle n'existe pas on regarde si elle etait required
+                if(in_array(CHECK_REQUIRED, $verif)){
+                    return false;
+                }
+            } else {
+                $val = $tab[$champ];
+                //Si il n'y a q'une contrainte on la met en tableau
+                if(!is_array($verif)){
+                    $verif = array($verif);
+                }
+                //On teste toutes les contraintes
+                foreach ($verif as $check) {
+                    //Si un seul retour faux on arrete
+                    if($this->check_value($val, $check) === false){
+                        return false;
+                    }
+                }
+            }
+        }
+        //Si on arrive au bout tous est ok
+        return true;
+    }
+
+    /**
      * Verifie une valeur par rapport à une constante CHECK
      * @param type $val - LA valeur
      * @param type $check - La constante
      * @return mixed|false - La valeur ou false si elle ne correspond pas
      */
     private function check_value($val, $check) {
-        //Chargement de check value
-        $fc = get_instance();
-        $fc->load->helper('check_value');
         //Verification selon le type
         switch ($check) {
             case CHECK_STRING:
@@ -425,32 +472,32 @@ class Form {
                 }
                 return false;
             case CHECK_INT:
-                if (check_integer($val)) {
+                if (ctype_digit(strval($val))) {
                     return (int) $val;
                 }
                 return false;
             case CHECK_FLOAT:
-                if (check_float($val)) {
+                if (is_float($val + 0)) {
                     return (float) $val;
                 }
                 return false;
             case CHECK_EMAIL:
-                if (check_email($val)) {
+                if ((bool) filter_var($val, FILTER_VALIDATE_EMAIL)) {
                     return $val;
                 }
                 return false;
             case CHECK_URL:
-                if (check_url($val)) {
+                if ((bool) filter_var($val, FILTER_VALIDATE_URL)) {
                     return $val;
                 }
                 return false;
             case CHECK_DATE:
-                if (check_date($val)) {
+                if ($this->check_date($val)) {
                     return $val;
                 }
                 return false;
             case CHECK_PHONE:
-                if (check_phone_number($val)) {
+                if ((preg_match('#^(0[1-589])(?:[ /_.-]?(\d{2})){4}$#', $val) || preg_match('#^0[6-7]([-._/ ]?[0-9]{2}){4}$#', $val))) {
                     return $val;
                 }
                 return false;
@@ -459,9 +506,49 @@ class Form {
                     return $val;
                 }
                 return false;
+            case CHECK_REQUIRED:
+                if(trim($val) != ''){
+                    return true;
+                }
+                return false;
             default:
                 return false;
         }
+    }
+
+    /**
+     * Permet de vérifier que le paramètre passé est une date FR ou US 
+     * @param string $date - Valeur à vérifier
+     * @return boolean
+     */
+    private function check_date($date) {
+        //Découpe la date
+        if (strpos($date, '/') !== false) {
+            $date = explode('/', $date);
+        } else if (strpos($date, '.') !== false) {
+            $date = explode('.', $date);
+        } else if (strpos($date, '-') !== false) {
+            $date = explode('-', $date);
+        } else {
+            return false;
+        }
+        //Verifie les differents elements
+        if(count($date) != 3){
+            return false;
+        }
+        if(!(ctype_digit(strval($date[0])) && ctype_digit(strval($date[1])) && ctype_digit(strval($date[2])))){
+            return false;
+        }
+        //Si c'est une date europeen
+        if (strlen($date[0]) == 2 && strlen($date[1]) == 2 && strlen($date[2]) == 4) {
+            return checkdate($date[1], $date[0], $date[2]);
+        }
+        //Si c'est une date us
+        else if (strlen($date[0]) == 4 && strlen($date[1]) == 2 && strlen($date[2]) == 2) {
+            return checkdate($date[1], $date[2], $date[1]);
+        }
+        //Sinon false
+        return false;
     }
 
     /* ----- Upload fichier (formulaire html) ----- */

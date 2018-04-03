@@ -30,7 +30,7 @@ if(!function_exists('check_float')){
      * float ou de string)
      * Plus d'infos : http://php.net/manual/fr/function.is-int.php#82857
      * @param string $nb - Valeur à vérifier
-     * @return boolean - True si la valeur passée est un entier (int), false sinon.
+     * @return boolean - True si la valeur passée est un float, false sinon.
      */
     function check_float($nb){
         return is_float($nb + 0);
@@ -115,13 +115,20 @@ if (!function_exists('check_date')) {
         } else {
             return false;
         }
+        //Verifie les differents elements
+        if(count($date) != 3){
+            return false;
+        }
+        if(!(ctype_digit(strval($date[0])) && ctype_digit(strval($date[1])) && ctype_digit(strval($date[2])))){
+            return false;
+        }
         //Si c'est une date europeen
-        if (strlen($date[0]) == 2 && count($date) == 3) {
-            return ($date[0] > 0 && $date[0] < 32) && ($date[1] > 0 && $date[1] < 13) && (strlen($date[2]) > 0);
+        if (strlen($date[0]) == 2 && strlen($date[1]) == 2 && strlen($date[2]) == 4) {
+            return checkdate($date[1], $date[0], $date[2]);
         }
         //Si c'est une date us
-        else if (strlen($date[0]) == 3 && count($date) == 3) {
-            return ($date[2] > 0 && $date[2] < 32) && ($date[1] > 0 && $date[1] < 13) && (strlen($date[0]) > 0);
+        else if (strlen($date[0]) == 4 && strlen($date[1]) == 2 && strlen($date[2]) == 2) {
+            return checkdate($date[1], $date[2], $date[1]);
         }
         //Sinon false
         return false;

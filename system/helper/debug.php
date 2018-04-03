@@ -53,7 +53,7 @@ if (!function_exists('mouchard')) {
         if (is_array($var) || is_object($var)) {
             $var = print_r($var, true);
         }
-        mail(implode(',', $config["email"]), '[' . $config['appli_name'] . '] Mouchard du ' . date('d/m/Y H\hi'), utf8_encode("MOUCHARD :\n\n" . $var . "\n\nSESSION :\n\n" . print_r($_S, true) . "\n\nREQUEST :\n\n" . print_r($_REQUEST, true) . "\n\nGET :\n\n" . print_r($_GET, true) . "\n\nPOST :\n\n" . print_r($_POST, true) . "\n\nSERVER :\n\n" . print_r($_SERVER, true)), 'From:debug@fraquicom.php');
+        mail(implode(',', $config["email"]), '[' . $config['appli_name'] . '] Mouchard du ' . date('d/m/Y H\hi'), utf8_encode("MOUCHARD :\n\n" . $var . "\n\nSESSION :\n\n" . print_r($_SESSION, true) . "\n\nREQUEST :\n\n" . print_r($_REQUEST, true) . "\n\nGET :\n\n" . print_r($_GET, true) . "\n\nPOST :\n\n" . print_r($_POST, true) . "\n\nSERVER :\n\n" . print_r($_SERVER, true)), 'From:debug@fraquicom.php');
     }
 
 }

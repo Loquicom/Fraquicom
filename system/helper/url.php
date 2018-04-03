@@ -120,68 +120,6 @@ if (!function_exists('redirect')) {
 
 }
 
-if (!function_exists('code_message_url')) {
-
-    /**
-     * Code les carac speciaux pour le passage dans une url
-     * @param string $str
-     * @return string
-     */
-    function code_message_url($str) {
-        //Remplace le é
-        $str = str_replace('é', '-eag-', $str);
-        $str = str_replace('&eacute;', '-eag-', $str);
-        //Remplace le è
-        $str = str_replace('è', '-egr-', $str);
-        $str = str_replace('&egrave', '-egr-', $str);
-        //Replace le à
-        $str = str_replace('à', '-agr-', $str);
-        $str = str_replace('&agrave;', '-agr-', $str);
-        //Remplace le @
-        $str = str_replace('@', '-arb-', $str);
-        $str = str_replace('&commat;', '-arb-', $str);
-        //Remplace le " "
-        $str = str_replace(' ', '-spc-', $str);
-        return $str;
-    }
-
-}
-
-if (!function_exists('decode_message_url')) {
-
-    /**
-     * Decode les carac speciaux
-     * @param string $str
-     * @param boolean $htmlEncode - true transforme les code en leur code html, false en leur valeur reel
-     * @return string
-     */
-    function decode_message_url($str, $htmlEncode = true) {
-        if ($htmlEncode) {
-            //Remplace le é
-            $str = str_replace('-eag-', '&eacute;', $str);
-            //Remplace le è
-            $str = str_replace('-egr-', '&egrave', $str);
-            //Replace le à
-            $str = str_replace('-agr-', '&agrave;', $str);
-            //Remplace le @
-            $str = str_replace('-arb-', "&commat;", $str);
-        } else {
-            //Remplace le é
-            $str = str_replace('-eag-', 'é', $str);
-            //Remplace le è
-            $str = str_replace('-egr-', 'è', $str);
-            //Replace le à
-            $str = str_replace('-agr-', 'à', $str);
-            //Remplace le @
-            $str = str_replace('-arb-', "@", $str);
-        }
-        //Rempace le " "
-        $str = str_replace('-spc-', ' ', $str);
-        return $str;
-    }
-
-}
-
 if (!function_exists('url_get_contents')) {
 
     /**
