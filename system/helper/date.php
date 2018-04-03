@@ -54,14 +54,14 @@ if (!function_exists('convert_date')) {
 
 }
 
-if (!function_exists('compare_date')) {
+if (!function_exists('diff_date')) {
 
     /**
      * Compare deux date
      * @param string $date1
      * @param int
      */
-    function compare_date($date1, $date2) {
+    function diff_date($date1, $date2) {
         $date1 = convert_date('%Y%m%d', $date1);
         $date2 = convert_date('%Y%m%d', $date2);
 
