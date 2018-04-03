@@ -15,7 +15,7 @@ defined('FC_INI') or exit('Acces Denied');
         <link type="text/css" rel="stylesheet" href="<?= assets_url('css/material-icons.css') ?>"/>
         <!--Import materialize.css-->
         <link type="text/css" rel="stylesheet" href="<?= assets_url('css/materialize.css') ?>"  media="screen,projection"/>
-        <!--Iport style.css -->
+        <!--Import style.css -->
         <link type="text/css" rel="stylesheet" href="<?= assets_url('css/style.css') ?>"  media="screen,projection"/>
 
         <!--Let browser know website is optimized for mobile-->
