@@ -30,7 +30,7 @@ if(!function_exists('check_float')){
      * float ou de string)
      * Plus d'infos : http://php.net/manual/fr/function.is-int.php#82857
      * @param string $nb - Valeur à vérifier
-     * @return boolean - True si la valeur passée est un entier (int), false sinon.
+     * @return boolean - True si la valeur passée est un float, false sinon.
      */
     function check_float($nb){
         return is_float($nb + 0);
