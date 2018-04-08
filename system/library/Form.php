@@ -583,7 +583,11 @@ class Form {
         $fc = get_instance();
         $fc->load->helper('file');
         //Si le fichier est correctement uploadé
-        if (!isset($_FILES[$name]) OR $_FILES[$name]['error'] > 0) {
+        if(!isset($_FILES[$name])){
+            $this->upload_err = 'Aucun fichier avec le nom indiqué';
+            return false;
+        }
+        if ($_FILES[$name]['error'] > 0) {
             switch ($_FILES[$name]['error']) {
                 case UPLOAD_ERR_INI_SIZE:
                     $this->upload_err = 'Fichier trop volumineux par rapport à upload_max_filesize de ini.php';
