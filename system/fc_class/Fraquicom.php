@@ -185,6 +185,8 @@ class Fraquicom {
         if ($this->config->mode == 'mvc') {
             if ($this->load->get_model($name) !== false) {
                 return $this->load->get_model($name);
+            } else if($this->load->get_controller($name) !== false){
+                return $this->load->get_controller($name);
             }
             return false;
         } else {
