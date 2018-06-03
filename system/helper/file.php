@@ -480,3 +480,50 @@ if(!function_exists('get_extension')){
     }
     
 }
+
+if(!function_exists('size_name')){
+
+    /**
+     * Calcul la taille du fichier dans l'unité approprié
+     * @see filesize
+     * @param int $size - La taille en octet
+     * @param boolean $unité - Ajout ou non des unités dans le retour (defaut true)
+     * @return String|int la taille adapté dans le bon format (Octet, Ko, Mo, Go, To, Po)
+     */
+    function size_name($size, $unite = true){
+        //Array contenant les differents nom unités 
+        $name = array('Octet','Ko','Mo','Go', 'To', 'Po');
+        $index = 0;
+        //Ko
+        if($size < 1000000){
+            $size = round($size/1024,2);
+            $index = 1;
+        } 
+        //Mo
+        else if($size < 1000000000){
+            $size = round($size/pow(1024,2),2);
+            $index = 2;
+        }
+        //Go
+        else if($size < 1000000000000){
+            $size = round($size/pow(1024,3),2);
+            $index = 3;
+        }
+        //To
+        else if($size < 1000000000000000){
+            $size = round($size/pow(1024,4),2);
+            $index = 4;
+        } 
+        //Po
+        else {
+            $size = round($size/pow(1024,5),2);
+            $index = 5;
+        }
+        //Retour
+        if($unite){
+            return $size . " " . $name[$index];
+        }
+        return $size;
+    }
+
+}
