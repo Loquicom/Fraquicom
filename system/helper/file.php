@@ -493,9 +493,12 @@ if(!function_exists('size_name')){
     function size_name($size, $unite = true){
         //Array contenant les differents nom unités 
         $name = array('Octet','Ko','Mo','Go', 'To', 'Po');
-        $index = 0;
+        //Octect
+        if($size < 1000){
+            $index = 0;
+        } 
         //Ko
-        if($size < 1000000){
+        else if($size < 1000000){
             $size = round($size/1024,2);
             $index = 1;
         } 
