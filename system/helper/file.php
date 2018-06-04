@@ -492,7 +492,7 @@ if(!function_exists('size_name')){
      */
     function size_name($size, $unite = true){
         //Array contenant les differents nom unités 
-        $name = array('Octet','Ko','Mo','Go', 'To', 'Po');
+        $name = array('Octet(s)','Ko','Mo','Go', 'To', 'Po');
         //Octect
         if($size < 1000){
             $index = 0;
