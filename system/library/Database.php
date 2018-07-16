@@ -307,7 +307,7 @@ class Database {
             //Conception du where avec le ou les id
             $where = ' Where';
             foreach ($id as $champ => $val) {
-                $where .= " Upper(" . $champ . ") = '" . strtolower($val) . "' And";
+                $where .= " Upper(" . $champ . ") = '" . strtoupper($val) . "' And";
             }
             $where = rtrim($where, 'And');
             //Conception du set
@@ -345,7 +345,7 @@ class Database {
             //Conception du where avec le ou les id
             $where = ' Where';
             foreach ($id as $champ => $val) {
-                $where .= " Upper(" . $champ . ") = '" . strtolower($val) . "' And";
+                $where .= " Upper(" . $champ . ") = '" . strtoupper($val) . "' And";
             }
             $where = rtrim($where, 'And');
             //Ecriture de la requete
