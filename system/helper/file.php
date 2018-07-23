@@ -455,13 +455,30 @@ if(!function_exists('get_extension')){
     /**
      * Retourne l'extension d'un mimetype
      * @param string $mime - Le mimetype
+     * @param string $fileExt [optional] - L'extension d'un fichier pour regarder en priorité si le mimetype correspond
+     * (Permet d'eviter les probleme pour les mimetype qui correspondent à plusieurs extension comme text/plain)
      * @return false|string
      */
-    function get_extension($mime){
+    function get_extension($mime, $fileExt = null){
         //Chargement du fichier mimes.php
         $fc = get_instance();
         $fc->load->config('mimes');
         $mimes = $fc->config->mimes;
+        //Si l'extension du fichier est indiquée
+        if($fileExt !== null && trim($fileExt) != ''){
+            //Regarde si le mimetype indiqué est dans la clef de l'extension du fichier
+            $fileExt = strtolower($fileExt);
+            if(isset($mimes[$fileExt])){
+                $mimelist = $mimes[$fileExt];
+                if(!is_array($mimelist)){
+                    $mimelist = array($mimelist);
+                }
+                //Recherche
+                if(in_array($mime, $mimelist)){
+                    return $fileExt;
+                }
+            }
+        }
         //Parcours du tableau pour trouver l'extension
         foreach ($mimes as $ext => $mimetype){
             //Si plusieurs mimetype pour une extension
@@ -477,6 +494,21 @@ if(!function_exists('get_extension')){
         }
         //Si aucun resultat
         return false;
+    }
+    
+}
+
+if(!function_exists('reverse_mimetype')){
+    
+    /**
+     * Alias de get_extension
+     * @see get_extension
+     * @param string $mime
+     * @param string $fileExt
+     * @return false|string
+     */
+    function reverse_mimetype($mime, $fileExt = null){
+        return get_extension($mime, $fileExt);
     }
     
 }
