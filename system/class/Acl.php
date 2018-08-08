@@ -80,6 +80,8 @@ class Acl {
         $retour = true;
         foreach ($this->acl as $role => $acl){
             foreach ($acl as $page){
+                $url = strtolower($url);
+                $page = strtolower($page);
                 //Si l'url est dans la page
                 if(strpos($page, $url) !== false){
                     //Si c'est l'url exact
@@ -99,10 +101,6 @@ class Acl {
                         } else {
                             $retour = false;
                         }
-                    }
-                    //Sinon false pas accès pour l'instant
-                    else {
-                        $retour = false;
                     }
                 }
             }
