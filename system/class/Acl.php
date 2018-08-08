@@ -160,7 +160,7 @@ class Acl {
             return true;
         }
         //Verification de la presence du role
-        return in_array($this->data['_fc_acl'], strtolower($role));
+        return in_array(strtolower($role), $this->data['_fc_acl']);
     }
     
     private function find_role($role){
