@@ -81,7 +81,7 @@ class Acl {
         foreach ($this->acl as $role => $acl){
             foreach ($acl as $page){
                 //Si l'url est dans la page
-                if(strpos($url, $page) !== false){
+                if(strpos($page, $url) !== false){
                     //Si c'est l'url exact
                     if($url == $page || substr($url, 0, strlen($url) - 1) == $page){
                         //On regarde si l'utilisateur à le role
