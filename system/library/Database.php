@@ -272,8 +272,8 @@ class Database {
             $champs = '';
             $vals = '';
             foreach ($data as $champ => $val) {
-                $champs = $champ . ",";
-                $vals = "'" . $val . "',";
+                $champs .= $champ . ",";
+                $vals .= "'" . $val . "',";
             }
             $this->requete = 'Insert into ' . $this->prefix . $table . '(' . rtrim($champs, ',') . ') Values (' . rtrim($vals, ',') . ');';
             if ($this->execute() === false) {
