@@ -102,6 +102,9 @@ if (isset($getParams[1])) {
     }
 }
 
+//Ajout dans la variable $_config du script appelé
+$_config['current_script'] = $url;
+
 //Verification si l'utilisateur à le droit d'accès
 if(!$fraquicom->acl->verify($url)){
     //Si pas le droit on renvoie sur la page approprié
@@ -112,11 +115,9 @@ if(!$fraquicom->acl->verify($url)){
         $_GET['fc_acl'] = $url;
         $_REQUEST['fc_acl'] = $url;
         //changement de page
-        $url = $config['route']['index'];
+        redirect($config['route']['index'] . '?fc_acl=' . $url);
     }
 }
-//Ajout dans la variable $_config du script appelé
-$_config['current_script'] = $url;
 
 //Routage de l'utilisateur (modifie $url en fonction du fichier de config)
 if (!empty($config['route']['redirect'])) {
