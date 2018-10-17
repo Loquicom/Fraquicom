@@ -31,7 +31,7 @@ class Fraquicom {
     
     /**
      * Gestion des erreurs du framework
-     * @var Error
+     * @var FC_Error
      */
     public $error = null;
     
@@ -70,7 +70,7 @@ class Fraquicom {
         //Chargement log
         $this->log = new Log("Fraquicom Log", $this->config->get('data_path') . 'log/' . date('Y-m-d_') . session_id() . '.log', true, false);
         //Chargement gestion des erreurs
-        $this->error = Error::get_instance();
+        $this->error = FC_Error::get_instance();
         //Chargement de la class loader
         $this->load = Loader::get_instance();
         //Chargement acl

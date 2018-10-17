@@ -81,7 +81,7 @@ if (!isset($_S['_fc_id'])) {
 //Chargement de la class log
 require './system/class/Log.php';
 //Chargement de la class error
-require './system/class/Error.php';
+require './system/fc_class/FC_Error.php';
 //Chargement de la class config
 require './system/class/Config.php';
 //Chargement de la class loader

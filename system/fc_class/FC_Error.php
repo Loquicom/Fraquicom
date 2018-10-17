@@ -10,7 +10,7 @@ defined('FC_INI') or exit('Acces Denied');
 
 define("E_EXCEPTION", 0);
 
-class Error {
+class FC_Error {
 
     /**
      * L'instance de Error
