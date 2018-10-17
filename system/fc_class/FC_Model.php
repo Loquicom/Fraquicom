@@ -66,16 +66,24 @@ Class FC_Model extends Fraquicom{
      * Change le fetch mode par defaut
      * @param string $fetchMode - Le fetchmode (array ou class)
      * @return boolean
+     * @throws FraquicomException Aucune table
      */
     public function db_set_fetch_mode($fetchMode) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->set_fetch_mode($fetchMode);
     }
 
     /**
      * Reinitailise la requete à zero
      * (ne change pas le fetch mode)
+     * @throws FraquicomException Aucune table
      */
     public function db_reset() {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         $this->db->reset();
     }
 
@@ -88,8 +96,12 @@ Class FC_Model extends Fraquicom{
      * @param mixed $data - Les données
      * @param string $val - La valeur
      * @return boolean
+     * @throws FraquicomException Aucune table
      */
     public function db_where($data, $val = '') {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->where($data, $val);
     }
 
@@ -97,9 +109,12 @@ Class FC_Model extends Fraquicom{
      * Retourne tous les champs d'une table avec le where actuel
      * @param boolean $retour - Retourner le resultat (optional)
      * @return mixed
-     * @throws FraquicomException - Probléme de requete
+     * @throws FraquicomException Aucune table ou Probléme de requete
      */
     public function db_get($retour = true) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->get(static::$table_name, $retour);
     }
 
@@ -110,8 +125,12 @@ Class FC_Model extends Fraquicom{
      * clause where ecrite sans le mot clef where
      * @param boolean $retour - Retourner le resultat (optional)
      * @return false|mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_get_where($where, $retour = true) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->get_where(static::$table_name, $where, $retour);
     }
 
@@ -121,8 +140,12 @@ Class FC_Model extends Fraquicom{
      * +1 lignes $data = array(array('champ' => 'val', ...), array(...))
      * @param mixed $data - Les données à insérer
      * @return false|mixed - False si echec, l'id de la ligne si réussie (sous forme de tableau si plusieur ligne)
+     * @throws FraquicomException Aucune table
      */
     public function db_insert($data) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->insert(static::$table_name, $data);
     }
 
@@ -133,8 +156,12 @@ Class FC_Model extends Fraquicom{
      * @param mixed $id - Le ou les id de la table
      * @param mixed $data - Les données a modifier array('champ' => 'val', ...)
      * @return boolean|boolean[] true ou false selon la reussite, en tableau si plusieurs update
+     * @throws FraquicomException Aucune table
      */
     public function db_update($id, $data) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->update(static::$table_name, $id, $data);
     }
 
@@ -144,8 +171,12 @@ Class FC_Model extends Fraquicom{
      * +1 lignes $id = array(array('id' => 'val', ...), array(...))
      * @param mixed $id - Le ou les id de la table
      * @return boolean|boolean[] true ou false selon la reussite, en tableau si plusieurs delete
+     * @throws FraquicomException Aucune table
      */
     public function db_delete($id) {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->delete(static::$table_name, $id);
     }
 
@@ -153,8 +184,12 @@ Class FC_Model extends Fraquicom{
      * Retourne une ligne sous la forme du fetch mode par defaut
      * @param string $params - Parametre pour le retour
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_row($params = '') {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->row($params);
     }
 
@@ -162,24 +197,36 @@ Class FC_Model extends Fraquicom{
      * Retourne tous les resultat dans le fetch mode par defaut
      * @param string $params - Parametre pour le retour
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_result($params = '') {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->result($params);
     }
 
     /**
      * Retourne une ligne sous forme de tableau
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_row_array() {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         $this->db->row_array();
     }
 
     /**
      * Retourne tous les resusltats osus forme de tableau de tableau
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_result_array() {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->result_array();
     }
 
@@ -187,8 +234,12 @@ Class FC_Model extends Fraquicom{
      * Retourne une ligne de resultat sous forme d'objet
      * @param string $class - Le nom de la class
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function db_row_class($class = 'stdClass') {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->row_class($class);
     }
 
@@ -196,8 +247,12 @@ Class FC_Model extends Fraquicom{
      * Renvoie tous les resultas sous forme d'un tableau d'objet
      * @param string $class - Le nom de la class
      * @return mixed
+     * @throws FraquicomException Aucune table
      */
     public function result_class($class = 'stdClass') {
+        if(static::$table_name === null){
+            throw new FraquicomException('Aucune table n\'est reliée au Model');
+        }
         return $this->db->result_class($class);
     }
 
