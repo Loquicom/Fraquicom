@@ -14,10 +14,6 @@ Class FC_Controller extends Fraquicom{
         throw new FraquicomException('Impossible d\'utiliser la methode object en mode mvc');
     }
     
-    public function objects_to_attribute() {
-        throw new FraquicomException('Impossible d\'utiliser la methode objects_to_attribute en mode mvc');
-    }
-    
     public function index(){
         echo 'Fonction par defaut du controller';
     }

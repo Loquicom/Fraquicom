@@ -14,16 +14,8 @@ class FC_Object extends Fraquicom{
         throw new FraquicomException('Impossible d\'utiliser la methode model en mode no_mvc');
     }
     
-    public function models_to_attribute() {
-        throw new FraquicomException('Impossible d\'utiliser la methode models_to_attribute en mode no_mvc');
-    }
-    
     public function controller($name) {
         throw new FraquicomException('Impossible d\'utiliser la methode controller en mode no_mvc');
-    }
-    
-    public function controllers_to_attribute() {
-       throw new FraquicomException('Impossible d\'utiliser la methode controllers_to_attribute en mode no_mvc');
     }
     
 }
