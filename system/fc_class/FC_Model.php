@@ -59,6 +59,147 @@ Class FC_Model extends Fraquicom{
             }
         }
     }
+    
+    /* === Gestion BDD === */
+    
+    /**
+     * Change le fetch mode par defaut
+     * @param string $fetchMode - Le fetchmode (array ou class)
+     * @return boolean
+     */
+    public function db_set_fetch_mode($fetchMode) {
+        return $this->db->set_fetch_mode($fetchMode);
+    }
+
+    /**
+     * Reinitailise la requete à zero
+     * (ne change pas le fetch mode)
+     */
+    public function db_reset() {
+        $this->db->reset();
+    }
+
+    /**
+     * Création de la condition where de la requete
+     * Trois façon de l'utiliser
+     * Passage d'un tableau avec clef = champ et valeur = valeur recherché ex : where(array('id' => '1'))
+     * Passage de la clef et de la valeur en parametre ex : where('id', '1')
+     * Pasage de la clause where directement (sans le mot clef wehere) ex : where('id = 1 And email is null')
+     * @param mixed $data - Les données
+     * @param string $val - La valeur
+     * @return boolean
+     */
+    public function db_where($data, $val = '') {
+        return $this->db->where($data, $val);
+    }
+
+    /**
+     * Retourne tous les champs d'une table avec le where actuel
+     * @param boolean $retour - Retourner le resultat (optional)
+     * @return mixed
+     * @throws FraquicomException - Probléme de requete
+     */
+    public function db_get($retour = true) {
+        return $this->db->get(static::$table_name, $retour);
+    }
+
+    /**
+     * Retourne tous les champs d'une table avec le where en parametre
+     * @see Database::where()
+     * @param string[]|string $where - Les champs/valeur pour le where | La 
+     * clause where ecrite sans le mot clef where
+     * @param boolean $retour - Retourner le resultat (optional)
+     * @return false|mixed
+     */
+    public function db_get_where($where, $retour = true) {
+        return $this->db->get_where(static::$table_name, $where, $retour);
+    }
+
+    /**
+     * Insert une ou plusieur ligne dans la base
+     * 1 ligne $data = array('champ' => 'val', ...)
+     * +1 lignes $data = array(array('champ' => 'val', ...), array(...))
+     * @param mixed $data - Les données à insérer
+     * @return false|mixed - False si echec, l'id de la ligne si réussie (sous forme de tableau si plusieur ligne)
+     */
+    public function db_insert($data) {
+        return $this->db->insert(static::$table_name, $data);
+    }
+
+    /**
+     * Met à jour des champ d'une table
+     * 1 ligne $id = array('id' => 'val', ...)
+     * +1 lignes $id = array(array('id' => 'val', ...), array(...))
+     * @param mixed $id - Le ou les id de la table
+     * @param mixed $data - Les données a modifier array('champ' => 'val', ...)
+     * @return boolean|boolean[] true ou false selon la reussite, en tableau si plusieurs update
+     */
+    public function db_update($id, $data) {
+        return $this->db->update(static::$table_name, $id, $data);
+    }
+
+    /**
+     * Supprime des champ d'une table
+     * 1 ligne $id = array('id' => 'val', ...)
+     * +1 lignes $id = array(array('id' => 'val', ...), array(...))
+     * @param mixed $id - Le ou les id de la table
+     * @return boolean|boolean[] true ou false selon la reussite, en tableau si plusieurs delete
+     */
+    public function db_delete($id) {
+        return $this->db->delete(static::$table_name, $id);
+    }
+
+    /**
+     * Retourne une ligne sous la forme du fetch mode par defaut
+     * @param string $params - Parametre pour le retour
+     * @return mixed
+     */
+    public function db_row($params = '') {
+        return $this->db->row($params);
+    }
+
+    /**
+     * Retourne tous les resultat dans le fetch mode par defaut
+     * @param string $params - Parametre pour le retour
+     * @return mixed
+     */
+    public function db_result($params = '') {
+        return $this->db->result($params);
+    }
+
+    /**
+     * Retourne une ligne sous forme de tableau
+     * @return mixed
+     */
+    public function db_row_array() {
+        $this->db->row_array();
+    }
+
+    /**
+     * Retourne tous les resusltats osus forme de tableau de tableau
+     * @return mixed
+     */
+    public function db_result_array() {
+        return $this->db->result_array();
+    }
+
+    /**
+     * Retourne une ligne de resultat sous forme d'objet
+     * @param string $class - Le nom de la class
+     * @return mixed
+     */
+    public function db_row_class($class = 'stdClass') {
+        return $this->db->row_class($class);
+    }
+
+    /**
+     * Renvoie tous les resultas sous forme d'un tableau d'objet
+     * @param string $class - Le nom de la class
+     * @return mixed
+     */
+    public function result_class($class = 'stdClass') {
+        return $this->db->result_class($class);
+    }
 
     /* === Méthodes héritées === */
     

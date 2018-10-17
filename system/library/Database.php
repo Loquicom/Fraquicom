@@ -206,7 +206,7 @@ class Database {
     /**
      * Retourne tous les champs d'une table avec le where actuel
      * @param string $table - Le nom de la table
-     * @param boolean $retour - Retourner le resultat
+     * @param boolean $retour - Retourner le resultat (optional)
      * @return mixed
      * @throws FraquicomException - Probléme de requete
      */
@@ -228,8 +228,9 @@ class Database {
      * Retourne tous les champs d'une table avec le where en parametre
      * @see Database::where()
      * @param string $table - Le nom de la table
-     * @param string[]|string $where - Les champs/valeur pour le where | La clause where ecrite sans le mot clef where
-     * @param boolean $retour - Retourner le resultat
+     * @param string[]|string $where - Les champs/valeur pour le where | La 
+     * clause where ecrite sans le mot clef where
+     * @param boolean $retour - Retourner le resultat (optional)
      * @return false|mixed
      */
     public function get_where($table, $where, $retour = true) {
