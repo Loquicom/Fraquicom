@@ -68,14 +68,14 @@ class FC_Error {
 
     private function __construct() {
         //Changement des fonctions d'erreur/exception
-        register_shutdown_function("Error::shutdown");
-        set_error_handler("Error::error_handler");
-        set_exception_handler("Error::exception_handler");
+        register_shutdown_function("FC_Error::shutdown");
+        set_error_handler("FC_Error::error_handler");
+        set_exception_handler("FC_Error::exception_handler");
     }
 
     public static function get_instance() {
         if (self::$instance === null) {
-            return self::$instance = new Error();
+            return self::$instance = new FC_Error();
         }
         return self::$instance;
     }
