@@ -172,7 +172,7 @@ class Database {
      * Trois façon de l'utiliser
      * Passage d'un tableau avec clef = champ et valeur = valeur recherché ex : where(array('id' => '1'))
      * Passage de la clef et de la valeur en parametre ex : where('id', '1')
-     * Pasage de la clause where directement (sans le mot clef wehere) ex : where('id = 1 And email is null')
+     * Passage de la clause where directement (sans le mot clef where) ex : where('id = 1 And email is null')
      * @param mixed $data - Les données
      * @param string $val - La valeur
      * @return boolean
