@@ -1,0 +1,7 @@
+Options +FollowSymLinks
+
+RewriteEngine On
+
+RewriteCond %{REQUEST_URI} !(index\.php|robots\.txt)
+
+RewriteRule ^(.*)$ index.php [E=FC_URL:$1,L]

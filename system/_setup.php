@@ -109,6 +109,7 @@ file_put_contents("./application/config/config.php",
                         str_replace("%TMP%", str_replace("\\", "\\\\", $data['config']['tmp_path']), 
                                 file_get_contents("./application/config/config.php")))));
 
+/*
 //Création de l'htacces de routage en fonction de l'ini
 $htaccess = fopen('./.htaccess', 'w');
 //Verifie la bonne création du fichier
@@ -123,6 +124,7 @@ $code .= 'RewriteCond $1 !^(index\.php|robots\.txt' . (($data['route']['routage_
 $code .= 'RewriteRule ^(.*)$ ' . substr($_SERVER['SCRIPT_NAME'], 1) . '?_fc_r=$1 [L]';
 fwrite($htaccess, $code);
 fclose($htaccess);
+*/
 
 //Création du fichir de config local
 if (!file_exists('./system/config/')) {

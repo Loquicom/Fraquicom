@@ -79,9 +79,9 @@ if ($config['maintenance']) {
 }
 
 //Recupéaration de l'url
-if (isset($_GET['_fc_r'])) {
-    $url = $_GET['_fc_r'];
-    unset($_GET['_fc_r']);
+if (isset($_SERVER['REDIRECT_FC_URL'])) {
+    $url = $_SERVER['REDIRECT_FC_URL'];
+    //unset($_GET['_fc_r']);
 } else {
     $url = '';
 }
