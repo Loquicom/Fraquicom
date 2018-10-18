@@ -650,5 +650,17 @@ class Form {
     public function upload_error() {
         return $this->upload_err;
     }
+    
+    /* === Methode magique === */
+    
+    /**
+     * Méthode magique permet de récupérer des éléments de $_REQUEST
+     * @see Form::request
+     * @param string $name Le nom du champ
+     * @return mixed|false - La valeur ou false si elle ne correspond pas ou est introuvable
+     */
+    public function __get($name) {
+        return $this->request($name);
+    }
 
 }
