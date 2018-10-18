@@ -21,6 +21,13 @@ class Acl {
      * @var boolean
      */
     private $actif;
+    
+    /**
+     * Indique si les acl sont en mode strict
+     * @see application/config/acl.php
+     * @var boolean
+     */
+    private $strict_mode;
 
     /**
      * Tableau des acl (modifiable dans config/acl.php)
@@ -49,6 +56,7 @@ class Acl {
         global $_config;
         //Recup valeur
         $this->actif = $config['acl'];
+        $this->strict_mode = $config['acl_strict'];
         $this->acl = $config['acl_profil'];
         $this->data = & $_SESSION['_fc_data_' . $config['appli_name']];
         $this->mvc = ($_config['mode'] == 'mvc');
@@ -76,8 +84,9 @@ class Acl {
         }
         //Recupere la liste des roles de l'utilisateur
         $user = $this->data['_fc_acl'];
+        //Valeur par defaut si la page n'est dans aucun role (strict mode)
+        $retour = !$this->strict_mode;
         //On regarde si la page est dans un role
-        $retour = true;
         foreach ($this->acl as $role => $acl){
             foreach ($acl as $page){
                 $url = strtolower($url);
