@@ -12,6 +12,13 @@ $config['acl_profil'] = array();
 $acl = & $config['acl_profil'];
 
 /*
+ * Indique si la gestion des ACL est en mode stricte
+ * En mode stricte si une page n'est dans aucun role elle est inaccessible
+ * En mode stricte selle est accessible par tous le monde
+ */
+$config['acl_strict'] = false;
+
+/*
  * Pour definir un role simplement faire :
  * $acl['role'] = array(...)
  * 
