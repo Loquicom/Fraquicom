@@ -52,6 +52,8 @@ class Loader {
      */
     private $libraries = array();
 
+    /* === Instanciation === */
+
     /**
      * Constructeur privé du loader
      * @global mixed $_config
@@ -72,6 +74,8 @@ class Loader {
         return self::$instance;
     }
 
+    /* === Paramétrage === */
+
     /**
      * Change le mode du Loader entre mvc ou no_mvc
      * @param string $mode
@@ -79,6 +83,8 @@ class Loader {
     public function set_mode($mode) {
         $this->mode = $mode;
     }
+
+    /* === Récupération === */
 
     /**
      * Retourne le model dans le tableau
@@ -190,6 +196,8 @@ class Loader {
         return $this->libraries;
     }
 
+    /* === Chargement === */
+
     /**
      * Charge un model
      * @param string $name - Le nom du model
@@ -201,8 +209,8 @@ class Loader {
             throw new LoaderException('Mode incompatible avec la methode');
         }
         //Si un model du meme nom est deja chargé
-        if(isset($this->models[strtolower($name)])){
-           return true; 
+        if (isset($this->models[strtolower($name)])) {
+            return true;
         }
         //On regarde si le fichier existe
         if (file_exists('./application/model/' . $name . '.php')) {
@@ -229,8 +237,8 @@ class Loader {
             throw new LoaderException('Mode incompatible avec la methode');
         }
         //Si un controller du meme nom est deja chargé
-        if(isset($this->controllers[strtolower($name)])){
-           return true; 
+        if (isset($this->controllers[strtolower($name)])) {
+            return true;
         }
         //On regarde si le fichier existe
         if (file_exists('./application/controller/' . $name . '.php')) {
@@ -301,8 +309,8 @@ class Loader {
             throw new LoaderException('Mode incompatible avec la methode');
         }
         //Si un objet du meme nom est deja chargé
-        if(isset($this->objects[strtolower($name)])){
-           return true; 
+        if (isset($this->objects[strtolower($name)])) {
+            return true;
         }
         //On regarde si le fichier existe
         if (file_exists('./application/class/' . $name . '.php')) {
@@ -430,17 +438,17 @@ class Loader {
         }
         return false;
     }
-    
+
     /**
      * Charge un fichier de config
      * @param string $name - Le nom de la bibliotheque
      * @return boolean
      * @throws LoaderException - Erreur pendant le chargement
      */
-    public function config($name){
+    public function config($name) {
         global $config;
-        if(file_exists('./application/config/' . $name . '.php')){
-            try{
+        if (file_exists('./application/config/' . $name . '.php')) {
+            try {
                 require './application/config/' . $name . '.php';
             } catch (Exception $ex) {
                 throw new LoaderException('Erreur pendant le chargement du fichier de config : ' . $ex->getMessage());
@@ -450,6 +458,49 @@ class Loader {
         return false;
     }
 
+    /**
+     * Charge un fichier de l'utilisateur
+     * @param string $file - Le nom du fichier (sans extension)
+     * @param type $ext - L'extension (par defaut .php) [optional]
+     * @return mixed|false - Le retour du fichier ou false en cas d'erreur
+     * @throws LoaderException - Erreur pendant le chargement
+     */
+    public function import($file, $ext = '.php') {
+        //Regarde si le fichier existe
+        if (!file_exists($file . $ext)) {
+            //Si il n'existe pas on regarde par rapport à la position du fichier appelant
+            $info = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+            //Recup le chemin du fichier appelant
+            $tab = explode('/', str_replace('\\', '/', $info['file']));
+            array_pop($tab);
+            $path = implode('/', $tab);
+            ($path[strlen($path) - 1] != '/') ? $path .= '/' : null;
+            //Le fichier existe on modifie le chemin en consequence
+            if (file_exists($path . $file . $ext)) {
+                $file = $path . $file;
+            }
+            //Sinon fichier introuvable
+            else {
+                return false;
+            }
+        }
+        //Supprime la derniere erreur en memoire
+        error_clear_last();
+        //Tente de charger le fichier
+        ob_start();
+        include $file . $ext;
+        $content = ob_get_contents();
+        ob_end_clean();
+        //Regarde si il y a une erreur
+        if (($err = error_get_last()) !== null) {
+            throw new LoaderException('Erreur pendant le chargement du fichier : ' . $err['message']);
+        }
+        //Sinon c'est ok
+        return $content;
+    }
+
+    /* === Méthode privée === */
+    
     /**
      * Execute du code php et renvoie le resultat
      * @param string $filename - Le chemin du fichier php
