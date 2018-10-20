@@ -45,4 +45,9 @@ $loader['library'] = array('Session', 'Database');
  */
 $loader['class'] = array();
 
+/*
+ *  Indique si il faut charger l'autoload de composer
+ */
+$loader['composer'] = false;
+
 unset($loader);

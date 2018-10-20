@@ -75,7 +75,7 @@ class Fraquicom {
         $this->load = Loader::get_instance();
         //Chargement acl
         $this->acl = Acl::get_instance();
-        //Chargement des fichiers demandé par l'utilisateur
+        /* --- Chargement des fichiers demandé par l'utilisateur --- */
         //Chargment Helper
         if ($this->config->get('loader', 'all', 'helper')) {
             $helperFiles = array_merge(array_diff(scandir('./application/helper/'), array('..', '.')), array_diff(scandir('./system/helper/'), array('..', '.')));
@@ -113,7 +113,7 @@ class Fraquicom {
             $classFiles = array_diff(scandir('./application/class/'), array('..', '.'));
             foreach ($classFiles as $classFile) {
                 $classFile = str_replace('.php', '', $classFile);
-                if ($this->load->library($classFile) === false) {
+                if ($this->load->object($classFile) === false) {
                     throw new FraquicomException('Impossible de charger le fichier ' . $classFile . '.php');
                 }
             }
@@ -122,6 +122,12 @@ class Fraquicom {
                 if ($this->load->object($classFile) === false) {
                     throw new FraquicomException('Impossible de charger le fichier ' . $classFile . '.php');
                 }
+            }
+        }
+        //Charge composer
+        if($this->config->get('loader', 'composer')){
+            if($this->load->composer() === false ){
+                throw new FraquicomException('Impossible de charger composer');
             }
         }
     }
