@@ -8,6 +8,13 @@
   ============================================================================ */
 defined('FC_INI') or exit('Acces Denied');
 
+/* --- Verification du droit d'écriture */
+if (!is_writable('./')) {
+    header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+    echo 'The application environment is not set correctly.';
+    exit(1);
+}
+
 /* --- Declaration variable globale --- */
 global $config; //Config application
 global $_S; //Session
@@ -18,7 +25,7 @@ require SYSTEM . 'Core.php';
 $core = Core::create();
 
 /* --- Setup --- */
-if($core->need_setup()){
+if ($core->need_setup()) {
     $core->setup();
     echo 'test';
 }
