@@ -499,6 +499,33 @@ class Loader {
         return $content;
     }
     
+    public function content($file){
+         //Regarde si le fichier existe
+        if (!file_exists($file)) {
+            //Si il n'existe pas on regarde par rapport à la position du fichier appelant
+            $info = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+            //Recup le chemin du fichier appelant
+            $tab = explode('/', str_replace('\\', '/', $info['file']));
+            array_pop($tab);
+            $path = implode('/', $tab);
+            ($path[strlen($path) - 1] != '/') ? $path .= '/' : null;
+            //Le fichier existe on modifie le chemin en consequence
+            if (file_exists($path . $file)) {
+                $file = $path . $file;
+            }
+            //Sinon fichier introuvable
+            else {
+                return false;
+            }
+        }
+        //Recup le contenu du fichier
+        $content = file_get_contents($file);
+        if($content === false){
+            return false;
+        }
+        return $content;
+    }
+    
     /**
      * Charge l'autoload de composer
      * @return boolean
