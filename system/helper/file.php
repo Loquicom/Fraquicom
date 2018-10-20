@@ -66,9 +66,6 @@ if (!function_exists('copy_dir')) {
      */
     function copy_dir($src, $dst) {
         $dir = opendir($src);
-        if ($dir === false) {
-            return false;
-        }
         @mkdir($dst);
         while (false !== ( $file = readdir($dir))) {
             if (( $file != '.' ) && ( $file != '..' )) {
