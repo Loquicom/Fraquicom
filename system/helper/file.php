@@ -8,18 +8,18 @@
   ============================================================================== */
 defined('FC_INI') or exit('Acces Denied');
 
-if(!function_exists('make_dir')){
-    
+if (!function_exists('make_dir')) {
+
     /**
      * Création d'une arborescence de dossiers si ces derniers n'existe pas
      * @param string $path - Le chemin
      * @return boolean
      */
-    function make_dir($path){
+    function make_dir($path) {
         //Si le dossier n'existe pas
-        if(!is_dir($path)){
+        if (!is_dir($path)) {
             //Tentative de création
-            if(make_dir(dirname($path))){
+            if (make_dir(dirname($path))) {
                 @mkdir($path);
             }
             //Erreur lors de la creation
@@ -30,11 +30,11 @@ if(!function_exists('make_dir')){
         //Le dossier est la
         return true;
     }
-    
+
 }
 
-if(!function_exists('is_empty')){
-    
+if (!function_exists('is_empty')) {
+
     /**
      * Indique si un dossier est vide
      * @param string $path - Le chemin vers le dossier
@@ -42,19 +42,19 @@ if(!function_exists('is_empty')){
      * ex : array('index.php', '.htaccess')
      * @return boolean
      */
-    function is_empty($path, $ignore = null){
+    function is_empty($path, $ignore = null) {
         //Verifie si le dossier existe
-        if(!file_exists($path)){
+        if (!file_exists($path)) {
             return false;
         }
         //Indique si le dossier est vide
         $tab = array('..', '.');
-        if($ignore !== null && is_array($ignore) && !empty($ignore)){
+        if ($ignore !== null && is_array($ignore) && !empty($ignore)) {
             $tab = array_merge($tab, $ignore);
         }
         return empty(array_diff(scandir($path), $tab));
     }
-    
+
 }
 
 if (!function_exists('copy_dir')) {
@@ -66,13 +66,16 @@ if (!function_exists('copy_dir')) {
      */
     function copy_dir($src, $dst) {
         $dir = opendir($src);
+        if ($dir === false) {
+            return false;
+        }
         @mkdir($dst);
         while (false !== ( $file = readdir($dir))) {
             if (( $file != '.' ) && ( $file != '..' )) {
-                if (is_dir($src . '/' . $file)) {
-                    copy_dir($src . '/' . $file, $dst . '/' . $file);
+                if (is_dir($src . DIRECTORY_SEPARATOR . $file)) {
+                    copy_dir($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
                 } else {
-                    copy($src . '/' . $file, $dst . '/' . $file);
+                    copy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
                 }
             }
         }
@@ -94,8 +97,8 @@ if (!function_exists('clear_folder')) {
         //On verifie que c'est un fichier
         if (is_dir($folderPath)) {
             //On ajoute un slash a lafin si il n'y en a pas
-            if ($folderPath[strlen($folderPath) - 1] != '/') {
-                $folderPath .= '/';
+            if ($folderPath[strlen($folderPath) - 1] != DIRECTORY_SEPARATOR) {
+                $folderPath .= DIRECTORY_SEPARATOR;
             }
             //Recup tous les fichiers
             $files = array_diff(scandir($folderPath), array('..', '.'));
@@ -416,7 +419,7 @@ if (!function_exists('get_mime_by_extension')) {
      */
     function get_mime_by_extension($filename) {
         //Verifie que le fichier existe
-        if(!file_exists($filename)){
+        if (!file_exists($filename)) {
             return false;
         }
         //Chargement fichier de config mimes.php
@@ -432,26 +435,26 @@ if (!function_exists('get_mime_by_extension')) {
 
 }
 
-if(!function_exists('get_mime_by_file')){
-    
+if (!function_exists('get_mime_by_file')) {
+
     /**
      * Retourne le mimetype réel d'un fichier, à partir du fichier magic.mime
      * @param string $filename - Le chemin vers le fichier
      * @return false|string - Le mimetype ou false
      */
-    function get_mime_by_file($filename){
+    function get_mime_by_file($filename) {
         //Verifie que le fichier existe
-        if(!file_exists($filename)){
+        if (!file_exists($filename)) {
             return false;
         }
         //Verification du mimetype
         return mime_content_type($filename);
     }
-    
+
 }
 
-if(!function_exists('get_extension')){
-    
+if (!function_exists('get_extension')) {
+
     /**
      * Retourne l'extension d'un mimetype
      * @param string $mime - Le mimetype
@@ -459,47 +462,47 @@ if(!function_exists('get_extension')){
      * (Permet d'eviter les probleme pour les mimetype qui correspondent à plusieurs extension comme text/plain)
      * @return false|string
      */
-    function get_extension($mime, $fileExt = null){
+    function get_extension($mime, $fileExt = null) {
         //Chargement du fichier mimes.php
         $fc = get_instance();
         $fc->load->config('mimes');
         $mimes = $fc->config->mimes;
         //Si l'extension du fichier est indiquée
-        if($fileExt !== null && trim($fileExt) != ''){
+        if ($fileExt !== null && trim($fileExt) != '') {
             //Regarde si le mimetype indiqué est dans la clef de l'extension du fichier
             $fileExt = strtolower($fileExt);
-            if(isset($mimes[$fileExt])){
+            if (isset($mimes[$fileExt])) {
                 $mimelist = $mimes[$fileExt];
-                if(!is_array($mimelist)){
+                if (!is_array($mimelist)) {
                     $mimelist = array($mimelist);
                 }
                 //Recherche
-                if(in_array($mime, $mimelist)){
+                if (in_array($mime, $mimelist)) {
                     return $fileExt;
                 }
             }
         }
         //Parcours du tableau pour trouver l'extension
-        foreach ($mimes as $ext => $mimetype){
+        foreach ($mimes as $ext => $mimetype) {
             //Si plusieurs mimetype pour une extension
-            if(is_array($mimetype)){
-                if(in_array($mime, $mimetype)){
+            if (is_array($mimetype)) {
+                if (in_array($mime, $mimetype)) {
                     return $ext;
                 }
             }
             //Sinon un seul mimetype
-            else if($mime == $mimetype){
+            else if ($mime == $mimetype) {
                 return $ext;
             }
         }
         //Si aucun resultat
         return false;
     }
-    
+
 }
 
-if(!function_exists('reverse_mimetype')){
-    
+if (!function_exists('reverse_mimetype')) {
+
     /**
      * Alias de get_extension
      * @see get_extension
@@ -507,13 +510,13 @@ if(!function_exists('reverse_mimetype')){
      * @param string $fileExt
      * @return false|string
      */
-    function reverse_mimetype($mime, $fileExt = null){
+    function reverse_mimetype($mime, $fileExt = null) {
         return get_extension($mime, $fileExt);
     }
-    
+
 }
 
-if(!function_exists('size_name')){
+if (!function_exists('size_name')) {
 
     /**
      * Calcul la taille du fichier dans l'unité approprié
@@ -522,40 +525,40 @@ if(!function_exists('size_name')){
      * @param boolean $unité - Ajout ou non des unités dans le retour (defaut true)
      * @return String|int la taille adapté dans le bon format (Octet, Ko, Mo, Go, To, Po)
      */
-    function size_name($size, $unite = true){
+    function size_name($size, $unite = true) {
         //Array contenant les differents nom unités 
-        $name = array('Octet(s)','Ko','Mo','Go', 'To', 'Po');
+        $name = array('Octet(s)', 'Ko', 'Mo', 'Go', 'To', 'Po');
         //Octect
-        if($size < 1000){
+        if ($size < 1000) {
             $index = 0;
-        } 
+        }
         //Ko
-        else if($size < 1000000){
-            $size = round($size/1024,2);
+        else if ($size < 1000000) {
+            $size = round($size / 1024, 2);
             $index = 1;
-        } 
+        }
         //Mo
-        else if($size < 1000000000){
-            $size = round($size/pow(1024,2),2);
+        else if ($size < 1000000000) {
+            $size = round($size / pow(1024, 2), 2);
             $index = 2;
         }
         //Go
-        else if($size < 1000000000000){
-            $size = round($size/pow(1024,3),2);
+        else if ($size < 1000000000000) {
+            $size = round($size / pow(1024, 3), 2);
             $index = 3;
         }
         //To
-        else if($size < 1000000000000000){
-            $size = round($size/pow(1024,4),2);
+        else if ($size < 1000000000000000) {
+            $size = round($size / pow(1024, 4), 2);
             $index = 4;
-        } 
+        }
         //Po
         else {
-            $size = round($size/pow(1024,5),2);
+            $size = round($size / pow(1024, 5), 2);
             $index = 5;
         }
         //Retour
-        if($unite){
+        if ($unite) {
             return $size . " " . $name[$index];
         }
         return $size;
