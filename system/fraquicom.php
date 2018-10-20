@@ -23,3 +23,5 @@ if($core->need_setup()){
     echo 'test';
 }
 
+/* --- Initialisation --- */
+$core->ini();

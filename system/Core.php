@@ -120,6 +120,34 @@ final class Core {
         }
     }
 
+    /* === Ini === */
+
+    public function ini() {
+        //Chargement fichier de config
+        $this->load_config_file();
+        //Chargement des class principales
+        $this->load_core_file();
+    }
+
+    public function load_config_file() {
+        //Verif fichier de config existe
+        if (!file_exists(APPLICATION . 'config/')) {
+            throw new FraquicomException("Impossible de trouver le dossier de config : " . BASE_PATH . APPLICATION . 'config' . DIRECTORY_SEPARATOR);
+        }
+        //Inita=ialisation variable $config
+        global $config;
+        $config = [];
+        //Recup tous les fichiers de config pour les charger
+        $config_files = array_diff(scandir(APPLICATION . 'config' . DIRECTORY_SEPARATOR), ['.', '..', 'index.html', '.htaccess']);
+        foreach ($config_files as $config_file) {
+            require APPLICATION . 'config' . DIRECTORY_SEPARATOR . $config_file;
+        }
+    }
+
+    public function load_core_file() {
+        
+    }
+
     /* === Methodes generation === */
 
     /**
