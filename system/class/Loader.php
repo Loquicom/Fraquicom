@@ -499,6 +499,11 @@ class Loader {
         return $content;
     }
     
+    /**
+     * Charge le contenu d'un fichier
+     * @param string $file - Le nom du fichier
+     * @return mixed|false - Le contenu ou false en cas d'erreur
+     */
     public function content($file){
          //Regarde si le fichier existe
         if (!file_exists($file)) {
