@@ -1,22 +1,11 @@
 {
-    
-    "config": {
+    "require": {
         "appli_name": "Fraquicom",
-        "data_path": "",
-        "tmp_path": ""
+        "data_path": "data",
+        "tmp_path": "tmp",
+        "MVC": true
     },
-
-    "mode": {
-        "mvc": "on"
-    },
-
-    "route": {
-        "routage_asset": "on"
-    },
-
-    "root": {
-        "fileroot": "",
-        "webroot": ""
+    "system": {
+        "setup": true
     }
-
 }
