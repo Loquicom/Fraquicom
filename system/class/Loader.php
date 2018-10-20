@@ -498,6 +498,18 @@ class Loader {
         //Sinon c'est ok
         return $content;
     }
+    
+    /**
+     * Charge l'autoload de composer
+     * @return boolean
+     */
+    public function composer(){
+        if(!file_exists('./vendor/autoload.php')){
+            return false;
+        }
+        require './vendor/autoload.php';
+        return true;
+    }
 
     /* === Méthode privée === */
     
