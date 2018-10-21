@@ -66,16 +66,20 @@ final class Core {
         }
         //Sauvegarde la valeur
         $this->json_config = $json_config;
+        //Ajout / si besoins chemin
+        $this->json_config->require->data_path .= ($this->json_config->require->data_path[strlen($this->json_config->require->data_path) - 1] == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR);
+        $this->json_config->require->tmp_path .= ($this->json_config->require->tmp_path[strlen($this->json_config->require->tmp_path) - 1] == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR);
         //Creation constante MVC
         define('MVC', $this->json_config->require->MVC);
         //Creation dossier data et tmp
         if(!$this->make_dir($this->json_config->require->data_path)){
             throw new FraquicomException("Impossible de créer le dossier data : " . $this->json_config->require->data_path);
         }
-        if(!$this->make_dir($this->json_config->require->tmp_path)){
+        if(!$this->make_dir($this->json_config->require->tmp_path) . 'log' . DIRECTORY_SEPARATOR . 'error'){
             throw new FraquicomException("Impossible de créer le dossier temporaire : " . $this->json_config->require->tmp_path);
         }
         //Charge la class d'erreur et de log
+        require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Error.php';
     }
 
     /**
@@ -134,6 +138,8 @@ final class Core {
         $this->load_config_file();
         //Chargement des class principales
         $this->load_core_file();
+        //Chargement des choix de l'utilisateurs
+        $this->load_user_config();
     }
 
     public function load_config_file() {
@@ -152,6 +158,10 @@ final class Core {
     }
 
     public function load_core_file() {
+        
+    }
+    
+    public function load_user_config(){
         
     }
 
@@ -273,7 +283,7 @@ final class Core {
             return true;
         }
         //Sinon creation du dossier
-        return mkdir($dir);
+        return mkdir($dir, 0777, true);
     }
 
     /**
