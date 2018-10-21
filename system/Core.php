@@ -68,6 +68,13 @@ final class Core {
         $this->json_config = $json_config;
         //Creation constante MVC
         define('MVC', $this->json_config->require->MVC);
+        //Creation dossier data et tmp
+        if(!$this->make_dir($this->json_config->require->data_path)){
+            throw new FraquicomException("Impossible de créer le dossier data : " . $this->json_config->require->data_path);
+        }
+        if(!$this->make_dir($this->json_config->require->tmp_path)){
+            throw new FraquicomException("Impossible de créer le dossier temporaire : " . $this->json_config->require->tmp_path);
+        }
         //Charge la class d'erreur et de log
     }
 
@@ -254,6 +261,20 @@ final class Core {
     }
 
     /* === Méthode utilitaire === */
+    
+    /**
+     * Creation d'un dossier si il n'existe pas
+     * @param qtring $dir - Le chemin du dossier
+     * @return boolean
+     */
+    private function make_dir($dir){
+        //Si le dossier existe deja
+        if(file_exists($dir)){
+            return true;
+        }
+        //Sinon creation du dossier
+        return mkdir($dir);
+    }
 
     /**
      * Vide un dossier

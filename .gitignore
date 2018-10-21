@@ -2,3 +2,13 @@
 /tmp/
 /data/
 /nbproject/
+/application/config/
+/application/controller/
+/application/helper/
+/application/library/
+/application/model/
+/application/view/
+/_backup/
+/application/class/
+/application/ajax/
+/application/hello_world.php
