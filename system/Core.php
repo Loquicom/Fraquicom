@@ -75,7 +75,7 @@ final class Core {
         if(!$this->make_dir($this->json_config->require->data_path)){
             throw new FraquicomException("Impossible de créer le dossier data : " . $this->json_config->require->data_path);
         }
-        if(!$this->make_dir($this->json_config->require->tmp_path) . 'log' . DIRECTORY_SEPARATOR . 'error'){
+        if(!$this->make_dir($this->json_config->require->tmp_path . 'log' . DIRECTORY_SEPARATOR . 'error')){
             throw new FraquicomException("Impossible de créer le dossier temporaire : " . $this->json_config->require->tmp_path);
         }
         //Charge la class d'erreur et de log
@@ -118,7 +118,8 @@ final class Core {
         if ($config_content === false) {
             throw new FraquicomException("Impossible de lire le fichier de config config.php : " . APPLICATION . 'config' . DIRECTORY_SEPARATOR . 'config.php');
         }
-        $config_content = str_replace(['%APPLI%', '%DATA%', '%TMP%'], [$this->json_config->require->appli_name, $this->json_config->require->data_path, $this->json_config->require->tmp_path], $config_content);
+        $tab = str_replace('\\', '/', [$this->json_config->require->data_path, $this->json_config->require->tmp_path]);
+        $config_content = str_replace(['%APPLI%', '%DATA%', '%TMP%'], [$this->json_config->require->appli_name, $tab[0], $tab[1]], $config_content);
         if (file_put_contents(APPLICATION . 'config' . DIRECTORY_SEPARATOR . 'config.php', $config_content) === false) {
             throw new FraquicomException("Impossible d'écrire dans le fichier de config config.php : " . APPLICATION . 'config' . DIRECTORY_SEPARATOR . 'config.php');
         }
@@ -283,6 +284,7 @@ final class Core {
             return true;
         }
         //Sinon creation du dossier
+        var_dump($dir);
         return mkdir($dir, 0777, true);
     }
 
