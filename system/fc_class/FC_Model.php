@@ -11,7 +11,7 @@ defined('FC_INI') or exit('Acces Denied');
 Class FC_Model extends Fraquicom{
     
     /**
-     * Le nom de la table lié dans le BDD
+     * Le nom de la table lié dans la BDD
      * @var null|string - Null si non definit, sinon un string avec le nom
      */
     protected static $table_name = null;
