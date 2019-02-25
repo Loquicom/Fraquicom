@@ -8,6 +8,9 @@
   ============================================================================== */
 defined('FC_INI') or exit('Acces Denied');
 
+//Charge la seconde class de gestion
+require './system/library/DatabaseTable.php';
+
 class Database {
 
     /**
@@ -56,7 +59,7 @@ class Database {
     private $statement = null;
 
     /**
-     * Construit une instance de PDO
+     * Construit une instance de gestion d'une Base de données en utilisant PDO
      * @global mixed $config
      * @param string $dbName - Le nom de la base secondaire (vide pour la principal)
      * @throws FraquicomException - Impossible de connecter
@@ -178,27 +181,27 @@ class Database {
      * @return boolean
      */
     public function where($data, $val = '') {
+        //Si 1er appel à where
+        if($this->where == ''){
+            $this->where = " Where 1=1";
+        }
         //Si on utilise en mode where(champ, valeur)
         if (trim($val) != '' && is_string($data)) {
-            $this->where = " Where Upper(" . $data . ") = '" . strtoupper($val) . "'";
+            $this->where .= " And Upper(" . $data . ") = '" . strtoupper($val) . "'";
             return true;
         }
         //Sinon si on utilise en mode where(array(champ => val, ...))
         else if (is_array($data) && !empty($data)) {
             $first = true;
             foreach ($data as $champ => $valeur) {
-                if ($first) {
-                    $this->where = " Where Upper(" . $champ . ") = '" . strtoupper($valeur) . "'";
-                    $first = false;
-                } else {
-                    $this->where .= " And Upper(" . $champ . ") = '" . strtoupper($valeur) . "'";
-                }
+                $this->where .= " And Upper(" . $champ . ") = '" . strtoupper($valeur) . "'";
             }
             return true;
         }
         //Sinon si $data est un string c'est une clause where deja ecrite
         else if (is_string($data)) {
-            $this->where = " Where " . $data;
+            $this->where = " And " . $data;
+            return true;
         }
         return false;
     }
@@ -208,7 +211,6 @@ class Database {
      * @param string $table - Le nom de la table
      * @param boolean $retour - Retourner le resultat (optional)
      * @return mixed
-     * @throws FraquicomException - Probléme de requete
      */
     public function get($table, $retour = true) {
         //Creation de la requete
@@ -413,7 +415,7 @@ class Database {
     }
 
     /**
-     * Retourne tous les resusltats osus forme de tableau de tableau
+     * Retourne tous les resultats sous forme de tableau de tableau
      * @return mixed
      */
     public function result_array() {
@@ -509,6 +511,72 @@ class Database {
             }
         } else {
             return false;
+        }
+    }
+    
+    /* === Méthodes magiques === */
+    
+    /**
+     * Méthode magique appelée quand l'objet est utilisé comme un fonction : $db(param)
+     * Execute un requete sql et retourne le resultat
+     * @param string $sql - Requete sql à executer
+     * @return false|mixed
+     */
+    public function __invoke($sql) {
+        if($this->execute($sql) === false){
+            return false;
+        }
+        return $this->result();
+    }
+    
+    /**
+     * Méthode magique appelée quand un parametre inconnue est utilisée
+     * Retourne une instance de DatabaseTable pour manipuler la table
+     * @param string $name
+     * @return \DatabaseTable
+     */
+    public function __get($name) {
+        return new DatabaseTable($this, $this->prefix, $name);
+    }
+    
+    /**
+     * Méthode magique appelée lors de l'affectation d'un parametre inconnue
+     * Essaye d'aouter les données dans la table
+     * @param string $name
+     * @param array $value
+     * @return boolean - Inutile le retour n'est jamais récupèré
+     */
+    public function __set($name, array $value) {
+        //Regarde si on à le nom des champs
+        if(isset($value[0]) && !is_array($value[0])){
+            //Pas de nom pour les champs tentative d'insert
+            $sql = "Insert into " . $this->prefix . $name . " Values(";
+            foreach ($value as $val){
+                $sql .= "'" . $val . "',";
+            }
+            $sql = rtrim($sql, ",") . ");";
+            return $this->execute($sql);
+        }
+        //Tentative d'insert
+        return $this->insert($name, $value);
+    }
+    
+    /**
+     * Méthode magie appelée quand une méthode inconnue est utilisée
+     * Sans argument effectue un appel à $this->get($table) {@see Database::get($table)}
+     * Avec un argument effectue un appel à $this->get_where($table, $where) {@see Database::get_where($table, $where)}
+     * @param string $name
+     * @param array $arguments
+     * @return false|mixed
+     */
+    public function __call($name, $arguments) {
+        switch(count($arguments)){
+            case 0:
+                return $this->get($name);
+            case 1:
+                return $this->get_where($name, $arguments[0]);
+            default:
+                return false;
         }
     }
 
