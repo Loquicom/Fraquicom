@@ -113,11 +113,12 @@ class FC_Error {
      * @return false
      */
     public function add($type, $msg, $file = 'Unknow file', $line = 'Unknow line', $trace = array()) {
+        global $logger;
         //Debut log
-        $fc = get_instance();
-        $fc->log->startLog(date('H:i:s') . '(' . time() . ')');
-        $fc->log->addLine('Error add by $this->error->add()', 'info');
-        $fc->log->addLine(static::get_type_error($type) . " : " . $msg . " (" . $file . ", line " . $line . ")", ($type == E_ERROR || $type == E_USER_ERROR || $type == E_EXCEPTION) ? 'err' : 'warn');
+        $name = 'FC_Error (' . uniqid() . ')';
+        $logger->new($name);
+        $logger->add('Error add by $this->error->add()', Logger::INFO);
+        $logger->add(static::get_type_error($type) . " : " . $msg . " (" . $file . ", line " . $line . ")", ($type == E_ERROR || $type == E_USER_ERROR || $type == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
         //Ajout trace
         if (!empty($trace)) {
             $i = 1;
@@ -131,10 +132,12 @@ class FC_Error {
                 $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
                 $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
                 //Ajout ligne log
-                $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+                $logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
             }
         }
-        $fc->log->endLog();
+        $logger->write($name);
+        $logger->end($name);
+        $logger->set_active_log(LOG_SYSTEM);
         return false;
     }
 
@@ -209,8 +212,6 @@ class FC_Error {
      * Methode appelé lors de l'arret 
      */
     public static function shutdown() {
-        //Recuperation fraquicom
-        $fc = get_instance();
         //Si la connexion a été abandonnée par le client
         if (connection_aborted()) {
             //Si une action à faire
@@ -245,7 +246,9 @@ class FC_Error {
             }
         }
         //On fini le log
-        $fc->log->writeLog();
+        global $logger;
+        $logger->write();
+        $logger->end();
     }
 
     /**
@@ -280,9 +283,10 @@ class FC_Error {
             echo static::html_error(static::get_type_error($errno), $errstr, $errfile, $errline, $trace);
         }
         //Ajoute dans le log l'erreur
-        $fc = get_instance();
-        $fc->log->startLog(date('H:i:s') . '(' . uniqid() . ')');
-        $fc->log->addLine(static::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? 'err' : 'warn');
+        global $logger;
+        $name = 'FC_Error (' . uniqid() . ')';
+        $logger->new($name);
+        $logger->add(static::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
         $i = 1;
         foreach ($trace as $t) {
             //Recup nom de la fonction
@@ -294,9 +298,11 @@ class FC_Error {
             $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
             $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
             //Ajout ligne log
-            $fc->log->addLine("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+            $logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
         }
-        $fc->log->endLog();
+        $logger->write($name);
+        $logger->end($name);
+        $logger->set_active_log(LOG_SYSTEM);
         //Retour
         return !static::$use_php_error;
     }

@@ -75,11 +75,16 @@ final class Core {
         if(!$this->make_dir($this->json_config->require->data_path)){
             throw new FraquicomException("Impossible de créer le dossier data : " . $this->json_config->require->data_path);
         }
-        if(!$this->make_dir($this->json_config->require->tmp_path . 'log' . DIRECTORY_SEPARATOR . 'error')){
+        if(!$this->make_dir($this->json_config->require->tmp_path . 'log')){
             throw new FraquicomException("Impossible de créer le dossier temporaire : " . $this->json_config->require->tmp_path);
         }
         //Charge la class d'erreur et de log
+        global $logger;
+        global $error;
+        require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Logger.php';
+        $logger = new Logger(LOG_SYSTEM, $this->json_config->require->tmp_path . 'log' . DIRECTORY_SEPARATOR . 'fraquicom_' . date('Y-m-d'));
         require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Error.php';
+        $error = FC_Error::get_instance();
     }
 
     /**
@@ -132,15 +137,15 @@ final class Core {
         }
     }
 
-    /* === Ini === */
+    /* === Méthodes d'initialisation === */
 
     public function ini() {
-        //Chargement fichier de config
+        //Chargement fichiers de configs
         $this->load_config_file();
         //Chargement des class principales
         $this->load_core_file();
-        //Chargement des choix de l'utilisateurs
-        $this->load_user_config();
+        //Chargement session
+        $this->load_session();
     }
 
     public function load_config_file() {
@@ -148,7 +153,7 @@ final class Core {
         if (!file_exists(APPLICATION . 'config/')) {
             throw new FraquicomException("Impossible de trouver le dossier de config : " . BASE_PATH . APPLICATION . 'config' . DIRECTORY_SEPARATOR);
         }
-        //Inita=ialisation variable $config
+        //Initialisation variable $config
         global $config;
         $config = [];
         //Recup tous les fichiers de config pour les charger
@@ -159,10 +164,10 @@ final class Core {
     }
 
     public function load_core_file() {
-        
+
     }
     
-    public function load_user_config(){
+    public function load_session() {
         
     }
 
@@ -284,7 +289,6 @@ final class Core {
             return true;
         }
         //Sinon creation du dossier
-        var_dump($dir);
         return mkdir($dir, 0777, true);
     }
 
@@ -363,8 +367,16 @@ final class Core {
 
 class FraquicomException extends Exception {
     
+    public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+
 }
 
 class LoaderException extends Exception {
+
+    public function __construct($message, $code = 0, Exception $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
     
 }

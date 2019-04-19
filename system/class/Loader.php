@@ -20,7 +20,7 @@ class Loader {
      * Nom de variable interdit pour les vues et les fichiers
      * @var string[] 
      */
-    private static $varNameForbidden = array('_config', 'config', '_S', '_setup', 'fc', 'fraquicom');
+    private static $varNameForbidden = array('_config', 'config', '_S', '_setup', 'fc', 'fraquicom', 'logger', '_logger');
 
     /**
      * Le mode mvc ou non

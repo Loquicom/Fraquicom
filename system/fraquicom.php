@@ -19,6 +19,8 @@ if (!is_writable('./')) {
 global $config; //Config application
 global $_S; //Session
 global $fc; //Instance du Fraquicom
+global $logger; //Instance du logger
+global $error; //Intance du gestionnaire d'erreur
 
 /* --- Chargement Core --- */
 require SYSTEM . 'Core.php';

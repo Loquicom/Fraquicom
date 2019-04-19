@@ -114,6 +114,11 @@ define('BASE_PATH', $_absolute_path[strlen($_absolute_path) - 1] == DIRECTORY_SE
  * URL du site
  */
 define('BASE_URL', $_base_url);
+/**
+ * Nom du log system
+ */
+define('LOG_SYSTEM', 'Fraquicom System Log');
+
 
 /* --- Lancement Fraquicom --- */
 require SYSTEM . 'fraquicom.php';
