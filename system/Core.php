@@ -337,7 +337,9 @@ final class Core {
         $dst = $dst[strlen($dst) - 1] == DIRECTORY_SEPARATOR ? $dst : $dst . DIRECTORY_SEPARATOR;
         //Copie fichier du dossier
         $dir = opendir($src);
-        @mkdir($dst);
+        if(!file_exists($dst)) {
+            @mkdir($dst);
+        }
         while (false !== ( $file = readdir($dir))) {
             if (( $file != '.' ) && ( $file != '..' )) {
                 if (is_dir($src . DIRECTORY_SEPARATOR . $file)) {
