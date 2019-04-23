@@ -200,7 +200,8 @@ final class Core {
     }
 
     private function load_core_file() {
-
+        //Class d'encapsulation du fichier de config
+        require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Config.php';
     }
     
     private function load_session() {
@@ -374,7 +375,7 @@ final class Core {
      * @return array
      */
     public function get_config() {
-        return $this->config;
+        return new FC_Config($this->config);
     }
 
     /* === Méthode utilitaire === */
