@@ -51,6 +51,24 @@ final class Core {
     private $logger;
 
     /**
+     * Instance du gestionnaire de routage
+     * @var FC_Router
+     */
+    private $router;
+
+    /**
+     * Instance du gestionnaire de chargement de fichiers
+     * @var FC_Loader
+     */
+    private $loader;
+
+    /**
+     * Instance du gestionnaire d'accès
+     * @var FC_Acl
+     */
+    private $acl;
+
+    /**
      * Contenu du fichier de config fraquicom.json
      * @var array
      */
@@ -165,7 +183,7 @@ final class Core {
         $this->load_session();
     }
 
-    public function load_config_file() {
+    private function load_config_file() {
         //Verif fichier de config existe
         if (!file_exists(APPLICATION . 'config/')) {
             throw new FraquicomException("Impossible de trouver le dossier de config : " . BASE_PATH . APPLICATION . 'config' . DIRECTORY_SEPARATOR);
@@ -181,12 +199,19 @@ final class Core {
         $this->config = &$config;
     }
 
-    public function load_core_file() {
+    private function load_core_file() {
 
     }
     
-    public function load_session() {
+    private function load_session() {
         
+    }
+
+    /**
+     * Chargement des fichiers en fonction de la configuration de l'utilisateur
+     */
+    public function load() {
+
     }
 
     /* === Methodes generation === */
@@ -318,6 +343,30 @@ final class Core {
      */
     public function get_fraquicom() {
         return $this->fraquicom;
+    }
+
+    /**
+     * Retourne l'instance du gestionnaire de routage
+     * @return FC_Router
+     */
+    public function get_router() {
+        return $this->router;
+    }
+
+    /**
+     * Retourne l'instance du gestionnaire de chargement de fichiers 
+     * @return FC_Loader
+     */
+    public function get_loader() {
+        return $this->loader;
+    }
+
+    /**
+     * Retourne l'instance du gestionnaire d'accès
+     * @return FC_Acl
+     */
+    public function get_acl() {
+        return $this->acl;
     }
 
     /**

@@ -26,15 +26,22 @@ if ($core->need_setup()) {
 
 /* --- Initialisation --- */
 $core->ini();
+$core->load();
 
 /* --- Declaration et initialisation variable globale --- */
 global $config; //Config application
 global $fc; //Instance du Fraquicom
 global $logger; //Instance du logger
 global $error; //Intance du gestionnaire d'erreur
+global $router; //Intance du gestionnaire de routage
+global $loader; //Instance du gestionnaire de chargement des fichiers
+global $acl; //Instance du gestionnaire d'accès
 global $_S; //Session
 
 $config = $core->get_config();
 $fc = $core->get_fraquicom();
 $logger = $core->get_logger();
 $error = $core->get_error();
+$router = $core->get_router();
+$loader = $core->get_loader();
+$acl = $core->get_acl();
