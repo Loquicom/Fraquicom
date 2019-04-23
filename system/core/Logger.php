@@ -23,55 +23,55 @@ class Logger {
     /* --- Attributs --- */
     /**
      * Les noms des logs
-     * @param string[]
+     * @var string[]
      */
     protected $name = [];
 
     /**
      * Le nom du log actif
-     * @param string
+     * @var string
      */
     protected $active = null;
 
     /**
      * Le nom des fichiers des logs
-     * @param string[]
+     * @var string[]
      */
     protected $file = [];
 
     /**
      * Les ressources descripteur de fichier des logs
-     * @param ressource[]
+     * @var ressource[]
      */
     protected $fd = [];
 
     /**
      * Les ressources descripteur de fichier des traces des logs
-     * @param ressource[]
+     * @var ressource[]
      */
     protected $fd_trace = [];
 
     /**
      * Le contenue des logs
-     * @param string[]
+     * @var string[]
      */
     protected $log = [];
 
     /**
      * Le timestamp de debut de log
-     * @param int[]
+     * @var int[]
      */
     protected $time = [];
 
     /**
      * Les differents niveaux d'alertes des logs
-     * @param array
+     * @var array
      */
     protected $level = [];
 
     /**
      * Logs finient ou non
-     * @param bool[]
+     * @var bool[]
      */
     protected $end = [];
 

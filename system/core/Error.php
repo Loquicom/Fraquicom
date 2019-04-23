@@ -16,7 +16,7 @@ class FC_Error {
      * L'instance de Error
      * @var FC_Error
      */
-    protected static $instance = null;
+    private static $instance = null;
 
     /**
      * L'arret vient t'il d'une exception
@@ -66,13 +66,20 @@ class FC_Error {
      */
     protected static $use_php_error = false;
 
-    protected function __construct() {
+    /**
+     * Constructeur privé pour le singletion
+     */
+    private function __construct() {
         //Changement des fonctions d'erreur/exception
         register_shutdown_function("FC_Error::shutdown");
         set_error_handler("FC_Error::error_handler");
         set_exception_handler("FC_Error::exception_handler");
     }
 
+    /**
+     * Récupère l'instance unique de FC_Error
+     * @return FC_Error
+     */
     public static function get_instance() {
         if (static::$instance === null) {
             return static::$instance = new FC_Error();
