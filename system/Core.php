@@ -39,10 +39,28 @@ final class Core {
     private $fraquicom;
 
     /**
+     * Instance du gestionnaire d'erreur
+     * @var FC_Error
+     */
+    private $error;
+
+    /**
+     * Instance du gestionnaire de logs
+     * @var Logger
+     */
+    private $logger;
+
+    /**
      * Contenu du fichier de config fraquicom.json
-     * @var string
+     * @var array
      */
     private $json_config;
+
+    /**
+     * Contenu des fichiers de config
+     * @var array
+     */
+    private $config;
 
     /* === Instanciation === */
 
@@ -79,12 +97,11 @@ final class Core {
             throw new FraquicomException("Impossible de créer le dossier temporaire : " . $this->json_config->require->tmp_path);
         }
         //Charge la class d'erreur et de log
-        global $logger;
-        global $error;
         require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Logger.php';
-        $logger = new Logger(LOG_SYSTEM, $this->json_config->require->tmp_path . 'log' . DIRECTORY_SEPARATOR . 'fraquicom_' . date('Y-m-d'));
+        $this->logger = new Logger(LOG_SYSTEM, $this->json_config->require->tmp_path . 'log' . DIRECTORY_SEPARATOR . 'fraquicom_' . date('Y-m-d'));
         require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Error.php';
-        $error = FC_Error::get_instance();
+        FC_Error::set_logger($this->logger);
+        $this->error = FC_Error::get_instance();
     }
 
     /**
@@ -154,13 +171,14 @@ final class Core {
             throw new FraquicomException("Impossible de trouver le dossier de config : " . BASE_PATH . APPLICATION . 'config' . DIRECTORY_SEPARATOR);
         }
         //Initialisation variable $config
-        global $config;
         $config = [];
         //Recup tous les fichiers de config pour les charger
         $config_files = array_diff(scandir(APPLICATION . 'config' . DIRECTORY_SEPARATOR), ['.', '..', 'index.html', '.htaccess']);
         foreach ($config_files as $config_file) {
             require APPLICATION . 'config' . DIRECTORY_SEPARATOR . $config_file;
         }
+        //Recupération en attribut
+        $this->config = &$config;
     }
 
     public function load_core_file() {
@@ -274,6 +292,40 @@ final class Core {
         //Ajout de l'exemple
         copy(SYSTEM . 'setup_file' . DIRECTORY_SEPARATOR . 'preset' . DIRECTORY_SEPARATOR . 'hello_world.php', APPLICATION . 'view' . DIRECTORY_SEPARATOR . 'hello_world.php');
         copy(SYSTEM . 'setup_file' . DIRECTORY_SEPARATOR . 'preset' . DIRECTORY_SEPARATOR . 'hello_world.controller.php', APPLICATION . 'controller' . DIRECTORY_SEPARATOR . 'hello_world.php');
+    }
+
+    /* === Getter === */
+
+    /**
+     * Retourne l'instance du gestionnaire d'erreur
+     * @return FC_Error
+     */
+    public function get_error() {
+        return $this->error;
+    }
+
+    /**
+     * Retourne l'instance du gestionnaire de logs
+     * @return Logger
+     */
+    public function get_logger() {
+        return $this->logger;
+    }
+
+    /**
+     * Retourne l'instance du Fraquicom
+     * @return Fraquicom
+     */
+    public function get_fraquicom() {
+        return $this->fraquicom;
+    }
+
+    /**
+     * Retourne les valeurs des fichiers de config
+     * @return array
+     */
+    public function get_config() {
+        return $this->config;
     }
 
     /* === Méthode utilitaire === */

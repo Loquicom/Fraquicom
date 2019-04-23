@@ -15,13 +15,6 @@ if (!is_writable('./')) {
     exit(1);
 }
 
-/* --- Declaration variable globale --- */
-global $config; //Config application
-global $_S; //Session
-global $fc; //Instance du Fraquicom
-global $logger; //Instance du logger
-global $error; //Intance du gestionnaire d'erreur
-
 /* --- Chargement Core --- */
 require SYSTEM . 'Core.php';
 $core = Core::create();
@@ -29,8 +22,19 @@ $core = Core::create();
 /* --- Setup --- */
 if ($core->need_setup()) {
     $core->setup();
-    echo 'test';
 }
 
 /* --- Initialisation --- */
 $core->ini();
+
+/* --- Declaration et initialisation variable globale --- */
+global $config; //Config application
+global $fc; //Instance du Fraquicom
+global $logger; //Instance du logger
+global $error; //Intance du gestionnaire d'erreur
+global $_S; //Session
+
+$config = $core->get_config();
+$fc = $core->get_fraquicom();
+$logger = $core->get_logger();
+$error = $core->get_error();

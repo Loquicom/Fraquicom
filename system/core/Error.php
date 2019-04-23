@@ -19,6 +19,12 @@ class FC_Error {
     private static $instance = null;
 
     /**
+     * L'instance du gestionnaire de logs
+     * @var Logger
+     */
+    protected static $logger = null;
+
+    /**
      * L'arret vient t'il d'une exception
      * @var boolean
      */
@@ -82,9 +88,13 @@ class FC_Error {
      */
     public static function get_instance() {
         if (static::$instance === null) {
-            return static::$instance = new FC_Error();
+            static::$instance = new FC_Error();
         }
         return static::$instance;
+    }
+
+    public static function set_logger($logger) {
+        static::$logger = $logger;
     }
 
     /**
@@ -120,12 +130,11 @@ class FC_Error {
      * @return false
      */
     public function add($type, $msg, $file = 'Unknow file', $line = 'Unknow line', $trace = array()) {
-        global $logger;
         //Debut log
         $name = 'FC_Error (' . uniqid() . ')';
-        $logger->new($name);
-        $logger->add('Error add by $this->error->add()', Logger::INFO);
-        $logger->add(static::get_type_error($type) . " : " . $msg . " (" . $file . ", line " . $line . ")", ($type == E_ERROR || $type == E_USER_ERROR || $type == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
+        static::$logger->new($name);
+        static::$logger->add('Error add by $this->error->add()', Logger::INFO);
+        static::$logger->add(static::get_type_error($type) . " : " . $msg . " (" . $file . ", line " . $line . ")", ($type == E_ERROR || $type == E_USER_ERROR || $type == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
         //Ajout trace
         if (!empty($trace)) {
             $i = 1;
@@ -139,12 +148,12 @@ class FC_Error {
                 $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
                 $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
                 //Ajout ligne log
-                $logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+                static::$logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
             }
         }
-        $logger->write($name);
-        $logger->end($name);
-        $logger->set_active_log(LOG_SYSTEM);
+        static::$logger->write($name);
+        static::$logger->end($name);
+        static::$logger->set_active_log(LOG_SYSTEM);
         return false;
     }
 
@@ -253,9 +262,8 @@ class FC_Error {
             }
         }
         //On fini le log
-        global $logger;
-        $logger->write();
-        $logger->end();
+        static::$logger->write();
+        static::$logger->end();
     }
 
     /**
@@ -290,10 +298,9 @@ class FC_Error {
             echo static::html_error(static::get_type_error($errno), $errstr, $errfile, $errline, $trace);
         }
         //Ajoute dans le log l'erreur
-        global $logger;
         $name = 'FC_Error (' . uniqid() . ')';
-        $logger->new($name);
-        $logger->add(static::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
+        static::$logger->new($name);
+        static::$logger->add(static::get_type_error($errno) . " : " . $errstr . " (" . $errfile . ", line " . $errline . ")", ($errno == E_ERROR || $errno == E_USER_ERROR || $errno == E_EXCEPTION) ? Logger::ERR : Logger::WARN);
         $i = 1;
         foreach ($trace as $t) {
             //Recup nom de la fonction
@@ -305,11 +312,11 @@ class FC_Error {
             $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
             $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
             //Ajout ligne log
-            $logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
+            static::$logger->add("Trace #" . $i++ . " : " . $fonction . " (" . $file . ", line " . $line . ")");
         }
-        $logger->write($name);
-        $logger->end($name);
-        $logger->set_active_log(LOG_SYSTEM);
+        static::$logger->write($name);
+        static::$logger->end($name);
+        static::$logger->set_active_log(LOG_SYSTEM);
         //Retour
         return !static::$use_php_error;
     }
