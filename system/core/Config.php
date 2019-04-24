@@ -65,6 +65,15 @@ class FC_Config {
     }
 
     /**
+     * Ajoute un element dans le tableau de config
+     * @param string $key La clef à ajouter dans le tableau
+     * @param mixed $val La valeur à ajouter 
+     */
+    public function add($key, $val) {
+        $this->config[$key] = $val;
+    }
+
+    /**
      * Accède sous forma d'attribut à une valeur de config
      * @param string $key La clef du tableau à accèder
      * @return false|FC_Config|mixed false si la clef est introuvable,
@@ -86,7 +95,7 @@ class FC_Config {
      * @param mixed $val La valeur à ajouter 
      */
     public function __set($key, $val) {
-        $this->config[$key] = $val;
+        $this->add($key, $val);
     }
 
     /**
@@ -94,18 +103,27 @@ class FC_Config {
      * @return array Le resultat de la fusion
      */
     protected function merge_array() {
-        if(func_num_args() === 0) {
-            return [];
-        }
         $result = [];
-        foreach(func_get_args() as $arg) {
-            if(!is_array($arg)) {
-                $result[] = $arg;
-            } else {
-                foreach($arg as $key => $val) {
-                    $result[$key] = $val;
+        switch(func_num_args()) {
+            case 0:
+                break;
+            case 1:
+                if(is_array(func_get_arg(0))) {
+                    $result = func_get_arg(0);
+                } else {
+                    $result[] = func_get_arg(0);
                 }
-            }
+                break;
+            default:
+                foreach(func_get_args() as $arg) {
+                    if(!is_array($arg)) {
+                        $result[] = $arg;
+                    } else {
+                        foreach($arg as $key => $val) {
+                            $result[$key] = $val;
+                        }
+                    }
+                }
         }
         return $result;
     }
