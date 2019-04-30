@@ -183,7 +183,7 @@ final class Core {
         $this->load_session();
     }
 
-    private function load_config_file() {
+    public function load_config_file() {
         //Verif fichier de config existe
         if (!file_exists(APPLICATION . 'config/')) {
             throw new FraquicomException("Impossible de trouver le dossier de config : " . BASE_PATH . APPLICATION . 'config' . DIRECTORY_SEPARATOR);
@@ -199,12 +199,16 @@ final class Core {
         $this->config = &$config;
     }
 
-    private function load_core_file() {
+    public function load_core_file() {
         //Class d'encapsulation du fichier de config
         require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Config.php';
+        //Class de chargement des fichiers
+        require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Loader.php';
+        //Chargement des instances
+        $this->loader = FC_Loader::get_instance();
     }
     
-    private function load_session() {
+    public function load_session() {
         
     }
 
@@ -372,10 +376,14 @@ final class Core {
 
     /**
      * Retourne les valeurs des fichiers de config
-     * @return array
+     * @return FC_Config|array
      */
     public function get_config() {
-        return new FC_Config($this->config);
+        if(in_array('FC_Config', get_declared_classes())) {
+            return new FC_Config($this->config);
+        } else {
+            return $this->config;
+        }
     }
 
     /* === Méthode utilitaire === */
