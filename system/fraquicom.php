@@ -31,6 +31,7 @@ $core->load();
 /* --- Declaration et initialisation variable globale --- */
 global $config; //Config application
 global $fc; //Instance du Fraquicom
+global $fraquicom; //Autre nom pour l'instance du Fraquicom
 global $logger; //Instance du logger
 global $error; //Intance du gestionnaire d'erreur
 global $router; //Intance du gestionnaire de routage
@@ -40,6 +41,7 @@ global $_S; //Session
 
 $config = $core->get_config();
 $fc = $core->get_fraquicom();
+$fraquicom = &$fc;
 $logger = $core->get_logger();
 $error = $core->get_error();
 $router = $core->get_router();
