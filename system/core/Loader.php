@@ -118,6 +118,107 @@ class FC_Loader {
         unset($this->alias[$default_name]);
     }
 
+    /* === Chargement === */
+
+    /**
+     * Charge un model
+     * @param string $name Le nom du model à charger
+     * @return boolean Reussite
+     */
+    public function model(string $name) {
+
+    }
+
+    /**
+     * Charge un controller
+     * @param string $name Le nom du controller à charger
+     * @return boolean Reussite
+     */
+    public function controller(string $name) {
+
+    }
+
+    /**
+     * Charge une vue
+     * @param string $name Le nom de la vue à charger
+     * @return boolean Reussite
+     */
+    public function view(string $name) {
+
+    }
+
+    /**
+     * Charge un objet
+     * @param string $name Le nom de l'objet à charger
+     * @return boolean Reussite
+     */
+    public function object(string $name) {
+
+    }
+
+    /**
+     * Charge un fichier
+     * @param string $name Le nom du fichier à charger
+     * @return boolean Reussite
+     */
+    public function file(string $name) {
+
+    }
+
+    /**
+     * Charge une bibliotheque
+     * @param string $name Le nom de la bibliotheque à charger
+     * @return boolean Reussite
+     */
+    public function library(string $name) {
+
+    }
+
+    /**
+     * Charge un helper
+     * @param string $name Le nom de l'helper à charger
+     * @return boolean Reussite
+     */
+    public function helper(string $name) {
+
+    }
+
+    /**
+     * Charge un fichier de config
+     * @param string $name Le nom du fichier de config à charger
+     * @return boolean Reussite
+     */
+    public function config(string $name) {
+
+    }
+
+    /**
+     * Inclut un fichier
+     * @param string $name Le nom du fichier
+     * @param string $ext L'extension du fichier (optional)
+     * @return boolean Reussite
+     */
+    public function import(string $name, string $ext = '.php') {
+
+    }
+
+    /**
+     * Recupere le contenu d'un fichier
+     * @param string $file Le chemin vers le fichier
+     * @return false|string false en cas d'erreur, le contenu sinon
+     */
+    public function content(string $file) {
+
+    }
+
+    /**
+     * Charge les dépendances importer via composer
+     * @return boolean Reussite
+     */
+    public function composer() {
+
+    }
+
     /* === Utilitaire === */
 
     /**
