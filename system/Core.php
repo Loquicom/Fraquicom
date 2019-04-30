@@ -82,6 +82,11 @@ final class Core {
 
     /* === Instanciation === */
 
+    /**
+     * Chargement des fichiers de configs principaux du framework
+     * et du gestionnaire de logs et d'erreurs
+     * @throws FraquicomException Erreur pendant le chargement d'un fichier de config
+     */
     private function __construct() {
         //Verif que le fichier de config json existe
         if (!file_exists('fraquicom.json')) {
@@ -136,13 +141,17 @@ final class Core {
 
     /* === Setup === */
 
+    /**
+     * Indique si il y a besoin d'installer les fichiers du framework
+     * @return boolean
+     */
     public function need_setup() {
         return $this->json_config->system->setup;
     }
 
     /**
-     * Installe le Fraquicom
-     * @throws FraquicomException - Erreur lors de l'installation
+     * Installation du Fraquicom
+     * @throws FraquicomException Erreur lors de l'installation
      */
     public function setup() {
         //Regarde le mode de setup
@@ -174,6 +183,9 @@ final class Core {
 
     /* === Méthodes d'initialisation === */
 
+    /**
+     * Initialise les class du framework
+     */
     public function ini() {
         //Chargement fichiers de configs
         $this->load_config_file();
@@ -183,6 +195,10 @@ final class Core {
         $this->load_session();
     }
 
+    /**
+     * Chargement des fichiers de configs de l'utilisateur
+     * @throws FraquicomException Erreur lors du chargement d'un fichier
+     */
     public function load_config_file() {
         //Verif fichier de config existe
         if (!file_exists(APPLICATION . 'config/')) {
@@ -199,6 +215,9 @@ final class Core {
         $this->config = &$config;
     }
 
+    /**
+     * Chargement des class principales du framework
+     */
     public function load_core_file() {
         //Class d'encapsulation du fichier de config
         require SYSTEM . 'core' . DIRECTORY_SEPARATOR . 'Config.php';
@@ -244,6 +263,10 @@ final class Core {
         return true;
     }
 
+    /**
+     * Creation des fichiers pour le framework en mode non MVC
+     * @throws FraquicomException Erreur pendant la generation des fichiers
+     */
     private function generate_application_no_mvc() {
         //Backup avant supression si il y a qqchose dans le dossier application
         if (file_exists(APPLICATION) && count(array_diff(scandir(APPLICATION), array('..', '.', '.htaccess', 'index.html'))) > 0) {
@@ -282,6 +305,10 @@ final class Core {
         copy(SYSTEM . 'setup_file' . DIRECTORY_SEPARATOR . 'preset' . DIRECTORY_SEPARATOR . 'hello_world.php', APPLICATION . 'hello_world.php');
     }
     
+    /**
+     * Creation des fichiers pour le framework en mode MVC
+     * @throws FraquicomException Erreur pendant la generation des fichiers
+     */
     private function generate_application_mvc() {
         //Backup avant supression si il y a qqchose dans le dossier application
         if (file_exists(APPLICATION) && count(array_diff(scandir(APPLICATION), array('..', '.', '.htaccess', 'index.html'))) > 0) {
@@ -447,9 +474,7 @@ final class Core {
         $dst = $dst[strlen($dst) - 1] == DIRECTORY_SEPARATOR ? $dst : $dst . DIRECTORY_SEPARATOR;
         //Copie fichier du dossier
         $dir = opendir($src);
-        if(!file_exists($dst)) {
-            @mkdir($dst);
-        }
+        $this->make_dir($dst);
         while (false !== ( $file = readdir($dir))) {
             if (( $file != '.' ) && ( $file != '..' )) {
                 if (is_dir($src . DIRECTORY_SEPARATOR . $file)) {
@@ -462,9 +487,14 @@ final class Core {
         closedir($dir);
     }
 
-    private function create_dir($dirpath, $dirname) {
+    /**
+     * Création d'un dossier avec les fichiers de sécurités
+     * @param string $dirpath Le chemin vers le dossier
+     * @param string $dirname Le nom du dossier à créer
+     */
+    private function create_dir(string $dirpath, string $dirname = '') {
         //Creation du dossier
-        if (mkdir($dirpath . $dirname) === false) {
+        if ($this->make_dir($dirpath . $dirname) === false) {
             return false;
         }
         //Ajout fichier securite
