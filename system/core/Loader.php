@@ -195,19 +195,54 @@ class FC_Loader {
     /**
      * Charge un controller
      * @param string $name Le nom du controller à charger
-     * @return boolean Reussite
+     * @return boolean true Reussite, false le fichier n'existe pas
+     * @throws FcLoaderException Erreur ou Exception déclanchée lors du chargement du fichier
      */
     public function controller(string $name) {
-
+        $lower_name = strtolower($name);
+        //Regarde si il est déjà chargé
+        if(in_array('controller:' . $lower_name, $this->loaded)) {
+            return true;
+        }
+        //Chargement dans un composant
+        if(strpos($name, ':') !== false) {
+            list($component, $name) = explode(':', $lower_name, 2);
+            $component_dir = $this->working_dir . 'component' . DIRECTORY_SEPARATOR . $component . DIRECTORY_SEPARATOR;
+            if(!file_exists($component_dir . 'controller' . DIRECTORY_SEPARATOR . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                //==> ToDo Chargement Fichier <==
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le fichier " . $lower_name, 1, $ex);
+            }
+        } 
+        //Chargement dans l'application principale
+        else {
+            if(!file_exists($this->working_dir . 'controller' . DIRECTORY_SEPARATOR . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                //==> ToDo Chargement Fichier <==
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le fichier " . $lower_name, 1, $ex);
+            }
+        }
+        $this->loaded[] = 'controller:' . $lower_name;
+        return true;
     }
 
     /**
      * Charge une vue
      * @param string $name Le nom de la vue à charger
+     * @param array $params Les variables à passer à la vue [varName => varVal, ...]
+     * @param bool $return Retourner ou afficher la vue
      * @return boolean Reussite
      */
-    public function view(string $name) {
-
+    public function view(string $name, array $params = [], bool $return = false) {
+        return $this->file('view' . DIRECTORY_SEPARATOR . $name, $params, $return);
     }
 
     /**
@@ -222,10 +257,49 @@ class FC_Loader {
     /**
      * Charge un fichier
      * @param string $name Le nom du fichier à charger
+     * @param array $params Les variables à passer au fichier [varName => varVal, ...]
+     * @param bool $return Retourner ou afficher le fichier
      * @return boolean Reussite
      */
-    public function file(string $name) {
-
+    public function file(string $name, array $params = [], bool $return = false) {
+        $lower_name = strtolower($name);
+        //Chargement dans un composant
+        if(strpos($name, ':') !== false) {
+            list($component, $name) = explode(':', $lower_name, 2);
+            $component_dir = $this->working_dir . 'component' . DIRECTORY_SEPARATOR . $component . DIRECTORY_SEPARATOR;
+            if(!file_exists($component_dir . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                require $component_dir . $name . '.php';
+                $this->set_working_dir($component_dir);
+                $this->model[$name] = new FC_Component($this, new $name(), $component_dir);
+                $this->reset_working_dir();
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
+            }
+        } 
+        //Chargement dans l'application principale
+        else {
+            if(!file_exists($this->working_dir . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                require $this->working_dir . $name . '.php';
+                //Si on charge qqchose dans un composant
+                if($this->working_dir === APPLICATION) {
+                    $this->model[$lower_name] = new $name();
+                } else {
+                    $this->model[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
+                    $lower_name = basename($this->working_dir) . ':' . $lower_name;
+                }
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
+            }
+        }
+        return true;
     }
 
     /**
@@ -309,6 +383,32 @@ class FC_Loader {
      */
     protected static function is_forbidden(string $name) {
         return in_array($name, static::$forbidden);
+    }
+
+    /**
+     * Execute du code php et renvoie le resultat
+     * @param string $filename - Le chemin du fichier php sans l'extension
+     * @param array $data - Les parametres pour le fichier [varName => varVal, ...]
+     * @return false|mixed
+     */
+    private function execute(string $filename,array $data = []) {
+        if (file_exists($filename . '.php')) {
+            ob_start();
+            //Création des variables de la vue
+            if (is_array($data) && !empty($data)) {
+                foreach ($data as $key => $val) {
+                    if (!in_array($key, static::$forbidden)) {
+                        $$key = $val;
+                    }
+                }
+            }
+            //Recuperation de la vue
+            require $filename . '.php';
+            $content = ob_get_contents();
+            ob_end_clean();
+            return $content;
+        }
+        return false;
     }
 
 }
