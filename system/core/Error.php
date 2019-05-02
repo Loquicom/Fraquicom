@@ -379,11 +379,12 @@ class FC_Error {
     }
 
     protected static function html_error($errlib, $errstr, $errfile, $errline, $trace) {
+        $logo = BASE_URL . "assets/fraquicom.svg";
         $html = <<<HTML
 <div style="max-width: 80vw; margin: auto">
     <div style="margin-bottom: 1em; border: black dashed 2px; box-shadow: 0 6px 10px 0 rgba(0,0,0,0.14), 0 1px 18px 0 rgba(0,0,0,0.12), 0 3px 5px -1px rgba(0,0,0,0.3);">
         <div style="padding-left: 1em; border-bottom: black dashed 2px; background-color: #ffecb3">
-            <img src="http://img.loquicom.fr/fraquicom.svg" width="40" height="40" alt="Logo Fraquicom" style="display: inline-block">
+            <img src="{$logo}" width="40" height="40" alt="Logo Fraquicom" style="display: inline-block">
             <div style="display: inline-block; position: relative"><strong style="position: absolute; top: -25px">Fraquicom</strong></div>
         </div>
         <div style="background-color: #fff8e1">
