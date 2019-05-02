@@ -521,7 +521,7 @@ class FraquicomException extends Exception {
 
 }
 
-class LoaderException extends Exception {
+class FcLoaderException extends FraquicomException {
 
     public function __construct($message, $code = 0, Exception $previous = null) {
         parent::__construct($message, $code, $previous);
