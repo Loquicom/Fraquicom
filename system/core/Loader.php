@@ -42,7 +42,7 @@ class FC_Loader {
      * Dossier de travail actuel
      * @var  string
      */
-    protected $working_dir = '';
+    protected $working_dir = APPLICATION;
 
     /**
      * Liste des alias sous la forme [nom concret => [tableau des alias]]
@@ -53,6 +53,12 @@ class FC_Loader {
     ];
 
     /* --- Liste des fichiers déjà chargés --- */
+
+    /**
+     * Liste des noms des fichiers déjà chargés
+     * @var string[]
+     */
+    protected $loaded = [];
 
     /**
      * Liste des controllers instanciés
@@ -129,7 +135,7 @@ class FC_Loader {
     }
 
     public function reset_working_dir() {
-        $this->working_dir = '';
+        $this->working_dir = APPLICATION;
     }
 
     /* === Chargement === */
@@ -137,10 +143,52 @@ class FC_Loader {
     /**
      * Charge un model
      * @param string $name Le nom du model à charger
-     * @return boolean Reussite
+     * @return boolean true Reussite, false le fichier n'existe pas
+     * @throws FcLoaderException Erreur ou Exception déclanchée lors du chargement du fichier
      */
     public function model(string $name) {
-
+        $lower_name = strtolower($name);
+        //Regarde si il est déjà chargé
+        if(in_array('model:' . $lower_name, $this->loaded)) {
+            return true;
+        }
+        //Chargement dans un composant
+        if(strpos($name, ':') !== false) {
+            list($component, $name) = explode(':', $lower_name, 2);
+            $component_dir = $this->working_dir . 'component' . DIRECTORY_SEPARATOR . $component . DIRECTORY_SEPARATOR;
+            if(!file_exists($component_dir . 'model' . DIRECTORY_SEPARATOR . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                require $component_dir . 'model' . DIRECTORY_SEPARATOR . $name . '.php';
+                $this->set_working_dir($component_dir);
+                $this->model[$name] = new FC_Component($this, new $name(), $component_dir);
+                $this->reset_working_dir();
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le model " . $lower_name, 1, $ex);
+            }
+        } 
+        //Chargement dans l'application principale
+        else {
+            if(!file_exists($this->working_dir . 'model' . DIRECTORY_SEPARATOR . $name . '.php')) {
+                return false;
+            }
+            //Tentative de chargement du fichier
+            try {
+                require $this->working_dir . 'model' . DIRECTORY_SEPARATOR . $name . '.php';
+                //Si on charge qqchose dans un composant
+                if($this->working_dir === APPLICATION) {
+                    $this->model[$lower_name] = new $name();
+                } else {
+                    $this->model[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
+                }
+            } catch (Exception $ex) {
+                throw new FcLoaderException("Impossible de charger le model " . $lower_name, 1, $ex);
+            }
+        }
+        $this->loaded[] = 'model:' . $lower_name;
+        return true;
     }
 
     /**
@@ -233,6 +281,24 @@ class FC_Loader {
 
     }
 
+    /* === Recupère un objet === */
+
+    public function get_model(string $name) {
+        $name = strtolower($name);
+        if(!array_key_exists($name, $this->model)) {
+            return false;
+        }
+        return $this->model[$name];
+    }
+
+    public function get(string $name) {
+
+    }
+
+    public function __get(string $name) {
+
+    }
+
     /* === Utilitaire === */
 
     /**
@@ -242,6 +308,46 @@ class FC_Loader {
      */
     protected static function is_forbidden(string $name) {
         return in_array($name, static::$forbidden);
+    }
+
+}
+
+/**
+ * Proxy pour le loader de fichiers des composants
+ */
+class FC_Component {
+
+    /**
+     * Le loader à utiliser
+     * @var FC_Loader
+     */
+    protected $loader;
+
+    /**
+     * L'objet instancié dans le composant
+     * @var Object
+     */
+    protected $object;
+
+    /**
+     * Dossier du composant
+     * @var string
+     */
+    protected $component_dir;
+
+    public function __construct(FC_Loader $loader, $object, string $dir) {
+        $this->loader = $loader;
+        $this->object = $object;
+        $this->component_dir = $dir;
+    }
+
+    public function __call(string $name , array $arguments) {
+        if(!method_exists($this->object, $name)) {
+            throw new FraquicomException('Call to undefined method ' . get_class($this->object) . '::' . $name . '()');
+        }
+        $this->loader->set_working_dir($this->component_dir);
+        call_user_func_array([$this->object, $name], $arguments);
+        $this->loader->reset_working_dir();
     }
 
 }
