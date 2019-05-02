@@ -299,6 +299,9 @@ final class Core {
         if (!$this->create_dir(APPLICATION, 'library')) {
             throw new FraquicomException("Impossible de créer le dossier " . APPLICATION);
         }
+        if (!$this->create_dir(APPLICATION, 'component')) {
+            throw new FraquicomException("Impossible de créer le dossier " . APPLICATION);
+        }
         //Ajout fichier config
         $this->copy_dir(SYSTEM . 'setup_file' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR, APPLICATION . 'config' . DIRECTORY_SEPARATOR);
         //Ajout de l'exemple
@@ -342,6 +345,9 @@ final class Core {
             throw new FraquicomException("Impossible de créer le dossier " . APPLICATION);
         }
         if (!$this->create_dir(APPLICATION, 'library')) {
+            throw new FraquicomException("Impossible de créer le dossier " . APPLICATION);
+        }
+        if (!$this->create_dir(APPLICATION, 'component')) {
             throw new FraquicomException("Impossible de créer le dossier " . APPLICATION);
         }
         //Ajout fichier config
