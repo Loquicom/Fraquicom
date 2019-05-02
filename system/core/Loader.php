@@ -182,6 +182,7 @@ class FC_Loader {
                     $this->model[$lower_name] = new $name();
                 } else {
                     $this->model[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
+                    $lower_name = basename($this->working_dir) . ':' . $lower_name;
                 }
             } catch (Exception $ex) {
                 throw new FcLoaderException("Impossible de charger le model " . $lower_name, 1, $ex);
