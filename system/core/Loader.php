@@ -39,6 +39,12 @@ class FC_Loader {
     protected static $instance = null;
 
     /**
+     * Dossier de travail actuel
+     * @var  string
+     */
+    protected $working_dir = '';
+
+    /**
      * Liste des alias sous la forme [nom concret => [tableau des alias]]
      * @var array
      */
@@ -116,6 +122,14 @@ class FC_Loader {
      */
     public function remove_alias(string $default_name) {
         unset($this->alias[$default_name]);
+    }
+
+    public function set_working_dir(string $dir) {
+        $this->working_dir = ($dir[strlen($dir) - 1] == DIRECTORY_SEPARATOR) ? $dir : $dir . DIRECTORY_SEPARATOR;
+    }
+
+    public function reset_working_dir() {
+        $this->working_dir = '';
     }
 
     /* === Chargement === */
