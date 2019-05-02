@@ -120,7 +120,11 @@ class FC_Config {
                         $result[] = $arg;
                     } else {
                         foreach($arg as $key => $val) {
-                            $result[$key] = $val;
+                            if(isset($result[$key])){
+                                $result[$key] = $this->merge_array($result[$key], $val);
+                            } else {
+                                $result[$key] = $val;
+                            }
                         }
                     }
                 }
