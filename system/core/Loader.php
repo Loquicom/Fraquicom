@@ -79,6 +79,12 @@ class FC_Loader {
     protected $object = [];
 
     /**
+     * Liste des fichiers instanciés
+     * @var array
+     */
+    protected $file = [];
+
+    /**
      * Liste des bibliothèques instanciés
      * @var array
      */
@@ -176,6 +182,7 @@ class FC_Loader {
      * @param array $params Les variables à passer à la vue [varName => varVal, ...]
      * @param bool $return Retourner ou afficher la vue
      * @return boolean Reussite
+     * @throws FcLoaderException
      */
     public function view(string $name, array $params = [], bool $return = false) {
         return $this->file('view' . DIRECTORY_SEPARATOR . $name, $params, $return);
@@ -185,6 +192,7 @@ class FC_Loader {
      * Charge un objet
      * @param string $name Le nom de l'objet à charger
      * @return boolean Reussite
+     * @throws FcLoaderException
      */
     public function object(string $name) {
         $result = $this->load($name, 'class');
@@ -201,6 +209,7 @@ class FC_Loader {
      * @param array $params Les variables à passer au fichier [varName => varVal, ...]
      * @param bool $return Retourner ou afficher le fichier
      * @return boolean Reussite
+     * @throws FcLoaderException
      */
     public function file(string $name, array $params = [], bool $return = false) {
         $lower_name = strtolower($name);
@@ -215,7 +224,7 @@ class FC_Loader {
             try {
                 require $component_dir . $name . '.php';
                 $this->set_working_dir($component_dir);
-                $this->model[$name] = new FC_Component($this, new $name(), $component_dir);
+                $this->file[$name] = new FC_Component($this, new $name(), $component_dir);
                 $this->reset_working_dir();
             } catch (Exception $ex) {
                 throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
@@ -231,10 +240,9 @@ class FC_Loader {
                 require $this->working_dir . $name . '.php';
                 //Si on charge qqchose dans un composant
                 if($this->working_dir === APPLICATION) {
-                    $this->model[$lower_name] = new $name();
+                    $this->file[$lower_name] = new $name();
                 } else {
-                    $this->model[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
-                    $lower_name = basename($this->working_dir) . ':' . $lower_name;
+                    $this->file[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
                 }
             } catch (Exception $ex) {
                 throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
