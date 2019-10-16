@@ -123,11 +123,12 @@ class FC_Error {
      * @param string $msg - Le message de l'erreur
      * @param string $file - Le fichier (utiliser __FILE__)
      * @param string $line - La ligne (utiliser __LINE__)
-     * @param array $trace - Trace de l'éxecution, tableau de tableau. Chaque 
+     * @param array $trace - Trace de l'éxecution, tableau de tableau. Chaque
      * sous tableau doit contenir un champ function, si les champs class, type,
      * file et line existe ils sont pris en compte (pour plus d'info voir
      * debug_backtrace)
      * @return false
+     * @throws LoggerException
      */
     public function add($type, $msg, $file = 'Unknow file', $line = 'Unknow line', $trace = array()) {
         //Debut log
@@ -272,8 +273,8 @@ class FC_Error {
      * @param string $errstr - Le libelle de l'erreur
      * @param string $errfile - Le fichier de l'erreur
      * @param int $errline - Le ligne de l'erreur
-     * @return boolean - Pour executer ou non le système de gestion des erreurs
-     *  de PHP
+     * @return boolean - Pour executer ou non le système de gestion des erreurs de PHP
+     * @throws LoggerException
      */
     public static function error_handler($errno, $errstr, $errfile, $errline) {
         //Récupération de la trace
@@ -295,7 +296,11 @@ class FC_Error {
             $handler($errno, $errstr, $errfile, $errline, $trace);
         } else if (!static::$use_php_error) {
             //Affiche uniquement si l'on utilise pas la gestion d'erreur php
-            echo static::html_error(static::get_type_error($errno), $errstr, $errfile, $errline, $trace);
+            if(PHP_MODE === 'web') {
+                echo static::html_error(static::get_type_error($errno), $errstr, $errfile, $errline, $trace);
+            } else {
+                echo static::cli_error(static::get_type_error($errno), $errstr, $errfile, $errline, $trace);
+            }
         }
         //Ajoute dans le log l'erreur
         $name = 'FC_Error (' . uniqid() . ')';
@@ -324,6 +329,7 @@ class FC_Error {
     /**
      * Methode appelé en cas d'exception
      * @param Exception $exception - L'exception
+     * @throws LoggerException
      */
     public static function exception_handler($exception) {
         //Il y a eu une exception
@@ -376,6 +382,33 @@ class FC_Error {
                 break;
         }
         return $liberr;
+    }
+
+    protected static function cli_error($errlib, $errstr, $errfile, $errline, $trace) {
+        $str = "\n\033[1mFraquicom\033[0m\n"
+            . "$errlib: $errstr\n"
+            . "File: $errfile\n"
+            . "Line: $errline\n"
+            . "Call stack:\n";
+        //Lecture trace
+        $i = 0;
+        foreach ($trace as $t) {
+            //Recup nom de la fonction
+            $function = $t['function'] . '()';
+            if (isset($t['class'])) {
+                $function = $t['class'] . $t['type'] . $function;
+            }
+            //Autre info
+            $file = (isset($t['file'])) ? $t['file'] : 'Unknown file';
+            $line = (isset($t['line'])) ? $t['line'] : 'Unknown line';
+            //Generation string
+            $str .= "\t----- #$i -----\n"
+                . "\tFunction: $function\n"
+                . "\tFile: $file\n"
+                . "\tLine: $line\n";
+            $i++;
+        }
+        return $str;
     }
 
     protected static function html_error($errlib, $errstr, $errfile, $errline, $trace) {
