@@ -212,43 +212,7 @@ class FC_Loader {
      * @throws FcLoaderException
      */
     public function file(string $name, array $params = [], bool $return = false) {
-        $lower_name = strtolower($name);
-        //Chargement dans un composant
-        if(strpos($name, ':') !== false) {
-            list($component, $name) = explode(':', $lower_name, 2);
-            $component_dir = $this->working_dir . 'component' . DIRECTORY_SEPARATOR . $component . DIRECTORY_SEPARATOR;
-            if(!file_exists($component_dir . $name . '.php')) {
-                return false;
-            }
-            //Tentative de chargement du fichier
-            try {
-                require $component_dir . $name . '.php';
-                $this->set_working_dir($component_dir);
-                $this->file[$name] = new FC_Component($this, new $name(), $component_dir);
-                $this->reset_working_dir();
-            } catch (Exception $ex) {
-                throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
-            }
-        } 
-        //Chargement dans l'application principale
-        else {
-            if(!file_exists($this->working_dir . $name . '.php')) {
-                return false;
-            }
-            //Tentative de chargement du fichier
-            try {
-                require $this->working_dir . $name . '.php';
-                //Si on charge qqchose dans un composant
-                if($this->working_dir === APPLICATION) {
-                    $this->file[$lower_name] = new $name();
-                } else {
-                    $this->file[$lower_name] = new FC_Component($this, new $name(), $this->working_dir);
-                }
-            } catch (Exception $ex) {
-                throw new FcLoaderException("Impossible de charger le controller " . $lower_name, 1, $ex);
-            }
-        }
-        return true;
+        // TODO utiliser execute
     }
 
     /**
@@ -335,22 +299,21 @@ class FC_Loader {
     }
 
     protected function load(string $name, string $type) {
-        $return;
+        $return = false;
         //Recupere le nom de class et le nom en minuscule
         $lower_name = strtolower($name);
-        $class_name = explode('/', str_replace('\\', '/', $lower_name));
-        $class_name = $class_name[count($class_name) - 1];
         //Chargement dans un composant
         if(strpos($name, ':') !== false) {
             //Recupere le nom du composant
             list($component, $name) = explode(':', $name, 2);
-            $class_name = substr($class_name, strlen($component) + 1);
+            $class_name = substr($lower_name, strlen($component) + 1);
             //Regarde si il est déjà chargé
             if(in_array($class_name, $this->loaded)) {
                 return false;
             }
             //Verif que le fichier existe
             $component_dir = $this->working_dir . 'component' . DIRECTORY_SEPARATOR . $component . DIRECTORY_SEPARATOR;
+            var_dump($component_dir);
             if(!file_exists($component_dir . $type . DIRECTORY_SEPARATOR . $name . '.php')) {
                 return false;
             }
@@ -358,6 +321,7 @@ class FC_Loader {
             try {
                 require $component_dir . $type . DIRECTORY_SEPARATOR . $name . '.php';
                 $this->set_working_dir($component_dir);
+                var_dump($class_name);
                 $return = new FC_Component($this, new $class_name(), $component_dir);
                 $this->reset_working_dir();
             } catch (Exception $ex) {
@@ -366,6 +330,9 @@ class FC_Loader {
         } 
         //Chargement dans l'application principale
         else {
+            //Lecture du nom de la class
+            $class_name = explode('/', str_replace('\\', '/', $lower_name));
+            $class_name = $class_name[count($class_name) - 1];
             //Regarde si il est déjà chargé
             if(in_array($class_name, $this->loaded)) {
                 return false;
@@ -396,8 +363,11 @@ class FC_Loader {
      * @param string $filename - Le chemin du fichier php sans l'extension
      * @param array $data - Les parametres pour le fichier [varName => varVal, ...]
      * @return false|mixed
+     * @throws FcLoaderException
      */
     protected function execute(string $filename,array $data = []) {
+        // TODO Revoir pour executer un fichier php recuperer sont contenue et le renvoyer, pas de gestion des component, si on en a besoins on passe le chemin complet vers
+
         $content;
         //Chargement dans un composant
         if(strpos($name, ':') !== false) {

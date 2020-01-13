@@ -1,7 +1,8 @@
-/system/config/local.php
-/tmp/
-/data/
-/nbproject/
-/application/
-/_backup/
+system/config/local.php
+tmp/
+data/
+nbproject/
+application/
+_backup/
 index.old.php
+.idea/

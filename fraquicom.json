@@ -6,6 +6,6 @@
         "MVC": true
     },
     "system": {
-        "setup": true
+        "setup": false
     }
 }

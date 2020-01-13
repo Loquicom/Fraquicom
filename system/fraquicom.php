@@ -47,3 +47,8 @@ $error = $core->get_error();
 $router = $core->get_router();
 $loader = $core->get_loader();
 $acl = $core->get_acl();
+
+//var_dump($loader->model('test/lol:aze'));
+//$loader->get_model('test/lol:aze')->show(8);
+var_dump($loader->model('qwe/aze'));
+$loader->get_model('qwe/aze')->show(8);
